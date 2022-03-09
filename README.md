@@ -172,6 +172,7 @@ or remove the image if you are not going to be regenerating the cli often.
 * On new branch, add command/feature changes
 * Regenerate CLI script from `src` using `bashly generate` or use `./dev` to watch for changes (via inotifytools) to automatically regenerate cli.
 * Open Pull Request
+* Collab Corp Discord (Will send invite as requested)
 
 
 ### Kudos
