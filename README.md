@@ -3,8 +3,8 @@
 Manage your laravel project's docker compose setup with blade rendered template files.
 ## Introduction
 
-`nightwind` is a part bash, part php CLI (via ephemeral docker container) for running applications in docker via docker compose with template files
-that are generated/rendered by the [Laravel Blade](https://laravel.com/docs/9.x/blade) template enginge.
+`nightwind` is a part bash, part php CLI (via ephemeral docker container) for managing & running your laravel project's docker compose setup with [blade](https://laravel.com/docs/9.x/blade) rendered template files. 
+
 
 ## Dependencies
 
