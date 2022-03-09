@@ -1,0 +1,37 @@
+
+#!/bin/bash
+
+if [[ "$(docker images -q nightwind/renderer 2>/dev/null)" == "" ]] || [[ ${args[--rebuild]} == '1' ]]; 
+then
+    cd "$(get_cli_path)"
+    yellow "Building docker image for nightwind/renderer."
+    docker build . -f renderer.Dockerfile -t nightwind/renderer
+    cd -
+fi
+
+mkdir -p "$HOME/.nightwind/renderer"
+
+for file in $(find $(get_cli_path)/src/renderer -type f ); 
+do 
+    nightwind_base_path="$HOME/.nightwind/renderer"
+    relative_path="${file##*/renderer/}" 
+    destination_path="$HOME/.nightwind/renderer/$relative_path" 
+
+    mkdir -p "$(dirname $destination_path)" ## ensure parent directory exists
+    make_file $destination_path "$HOME/.nightwind/renderer/$relative_path" "$(cat $file)" ${args[--force]} > /dev/null 2>&1
+done
+
+
+# ensure this file is executable.
+chmod +x $HOME/.nightwind/renderer/render
+
+docker run --rm --user $(id -u):$(id -g) \
+    --volume "$HOME/.nightwind/renderer:/renderer" \
+    --volume "$PWD:/app" \
+    --workdir /renderer \
+    nightwind/renderer
+
+if [[ ${args[--remove]} == '1' ]];
+then
+    docker image rm nightwind/renderer
+fi

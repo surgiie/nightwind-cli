@@ -1,0 +1,15 @@
+name: logs
+short: l
+help: Tail a project container logs.
+catch_all: true
+filename: commands/logs
+args:
+- name: container
+  help: The target container to tail logs. Can optionally exclude your project prefix.
+  required: true
+dependencies:
+  - docker
+filters:
+  - is_laravel_directory
+  - docker_running
+  - requires_variables

@@ -1,0 +1,17 @@
+name: nightwind
+help: Manage your laravel project's docker compose setup with blade rendered template files.
+version: "v0.0.1"
+extensible: true
+# this is placed last to allow custom commands to be appended with `nightwind extend`
+commands:
+ - import: src/configs/init.yml
+ - import: src/configs/build.yml
+ - import: src/configs/render.yml
+ - import: src/configs/up.yml
+ - import: src/configs/logs.yml
+ - import: src/configs/exec.yml
+ - import: src/configs/npm.yml
+ - import: src/configs/artisan.yml
+ - import: src/configs/composer.yml
+ - import: src/configs/nuke.yml
+ - import: src/configs/extend.yml

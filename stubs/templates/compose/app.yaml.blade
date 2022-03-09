@@ -1,0 +1,127 @@
+version: "3.8"
+services:
+  app:
+    image: {{ $tag_prefix }}/app
+    container_name: {{ $tag_prefix }}-app
+    restart: unless-stopped
+    tty: true
+    env_file: ../../../.env
+    environment:
+      COMPOSER_MEMORY_LIMIT: -1
+    volumes:
+      - ../../../:/var/www/html
+      - ../web-server/ssl:{{ $ssl_directory }}
+      - ../php.ini:/usr/local/etc/php/conf.d/php-{{ $tag_prefix }}.ini
+      - ../php-fpm.conf:/usr/local/etc/php-fpm.d/www.conf
+    networks:
+      - {{ $tag_prefix }}-network
+    depends_on:
+      - cache
+      - database
+    @if($APP_ENV == 'local')
+    ports:
+      - "3000:3000" # expose port for tooling like vite remove as needed
+    @endif
+  web-server:
+    image: {{ $tag_prefix }}/web-server
+    container_name: {{ $tag_prefix }}-web-server
+    restart: unless-stopped
+    env_file: ../../../.env
+    tty: true
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ../../../:/var/www/html
+      - ../web-server/conf.d:/etc/nginx/conf.d
+      - ../web-server/nginx.conf:/etc/nginx/nginx.conf
+      - ../web-server/ssl:{{ $ssl_directory }}
+    networks:
+      - {{ $tag_prefix }}-network
+  cache:
+    container_name: {{ $tag_prefix }}-cache
+    image: redis:6
+    restart: unless-stopped
+    env_file: ../../../.env
+    tty: true
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - {{ $tag_prefix }}-redis:/data
+    networks:
+      - {{ $tag_prefix }}-network
+  database:
+    image: mysql:8.0.27
+    container_name: {{ $tag_prefix }}-database
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    volumes:
+      - {{ $tag_prefix }}-database:/var/lib/mysql/
+    networks:
+      - {{ $tag_prefix }}-network
+    env_file: ../../../.env
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    healthcheck: 
+      test: ["CMD-SHELL", 'mysqladmin ping']
+      interval: 10s
+      timeout: 2s
+      retries: 10
+  scheduler:
+    image: {{ $tag_prefix }}/app
+    container_name: {{ $tag_prefix }}-scheduler
+    restart: unless-stopped
+    env_file: ../../../.env
+    networks:
+      - {{ $tag_prefix }}-network
+    depends_on:
+      - app
+    volumes:
+      - ../../../:/var/www/html
+    command: >
+        bash -c "
+          echo 'Running scheduler...'
+          while [ true ]; do
+              php /var/www/html/artisan schedule:run --verbose --no-interaction &
+              sleep 60
+          done
+        "
+  queue:
+    image: {{ $tag_prefix }}/app
+    container_name: {{ $tag_prefix }}-queue
+    restart: unless-stopped
+    networks:
+      - {{ $tag_prefix }}-network
+    depends_on:
+      - app
+    volumes:
+      - ../../../:/var/www/html
+    env_file: ../../../.env
+    command: >
+        bash -c "echo 'Waiting for jobs..' && php /var/www/html/artisan queue:work --verbose --tries=3 --timeout=90"
+        
+@if($APP_ENV == 'local')
+  mailhog:
+    image: 'mailhog/mailhog:latest'
+    container_name: {{ $tag_prefix }}-mailhog
+    restart: unless-stopped
+    ports:
+        - "${MAILHOG_PORT:-1025}:1025"
+        - "${MAILHOG_DASHBOARD_PORT:-8025}:8025"
+    networks:
+        - "{{ $tag_prefix }}-network"
+@endif
+
+networks:
+  {{ $tag_prefix }}-network:
+    driver: bridge
+volumes:
+  {{ $tag_prefix }}-database:
+    driver: local
+  {{ $tag_prefix }}-redis:
+    driver: local

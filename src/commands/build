@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Build .nightwind/rendered/dockerfiles images.
+
+target="${args[target]}"
+
+if [ ! -d ".nightwind/rendered/dockerfiles" ];
+then
+    echo "$(red .nightwind/rendered/dockerfiles doesnt exist, nothing to build.)"
+    exit 1
+fi
+
+variables_file=".nightwind/variables.yaml"
+eval $(yaml_load $variables_file)
+
+if [ -z $tag_prefix ];
+then
+    echo "$(red MissingVariableError:) $(bold The tag_prefix yaml variable is required to build images.)"
+    exit 1;
+fi
+
+build_project_images "$tag_prefix" "$target" other_args

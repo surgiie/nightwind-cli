@@ -1,0 +1,29 @@
+
+#!/bin/bash
+
+# This script is called before `nightwind up` does anything.
+set -e
+
+ssl_directory=".nightwind/rendered/web-server/ssl"
+cert_path="$ssl_directory/live/{{$domain}}"
+
+mkdir -p $cert_path
+
+# generate dhparams for nginx site conf.
+if [ ! -f "$ssl_directory/ssl-dhparams.pem" ];
+then 
+    echo "Generating initial ssl dhparams for nginx ssl options. Go grab a cup of coffee :) Or remove this if you dont want it."
+    openssl dhparam -out "$ssl_directory/ssl-dhparams.pem" 4096
+    echo "Generated ssl dhparams for nginx conf at: $ssl_directory"
+fi
+
+# local ssl is provided out of box, remove as needed, this allows container startup if a cert doesnt already exist
+if [ ! -f "$cert_path/privkey.pem" ] && [ ! -f "$cert_path/fullchain.pem" ]; then
+    subject='/CN={{$domain}}/C=US/ST=Indiana/L=Indianapolis/O=CollabCorp/OU=Development'
+    openssl genrsa -out $cert_path/privkey.pem 2048
+    openssl req -new -x509 -key $cert_path/privkey.pem -out $cert_path/fullchain.pem \
+        -days 3650 -subj "$subject" -extensions SAN -config <( \
+        printf "[req]\ndistinguished_name = req\n[SAN]\nsubjectAltName=DNS:{{$domain}}")
+                
+    echo "Generated local ssl cert for container startup."
+fi

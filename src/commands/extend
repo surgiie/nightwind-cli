@@ -1,0 +1,50 @@
+#!/bin/bash
+if [ ! -d "$HOME/.nightwind/commands" ] || [ -z "$(ls -A "$HOME/.nightwind/commands")" ]
+then
+    echo "$(red There are no command files to extend the cli with)"
+fi
+
+files=""
+mkdir -p  $HOME/.nightwind/commands 
+
+## generate stubs directory/files except variables.yml as thats's been handled explictly above.
+for command in $(find $HOME/.nightwind/commands -type f -name '*.yml' -o -name '*.yaml'); 
+do
+    cmd=$(basename $command)
+    files="$files  - import: src/extended/$cmd\n"
+done
+
+if [ -z "$files" ];
+then
+    rm -rf $HOME/.nightwind/custom/*
+fi
+
+rm -rf $(get_cli_path)/src/extended
+cp -R $HOME/.nightwind/commands "$(get_cli_path)/src/extended";
+
+bashly_file="$(get_cli_path)/src/bashly.yml"
+truth_bashly_file="$(get_cli_path)/src/bashly.yml.current"
+
+if [ ! -f "$truth_bashly_file" ];
+then
+    append_to="$bashly_file"
+    cp "$bashly_file" $truth_bashly_file
+else
+    append_to="$truth_bashly_file"
+fi
+new_bashly_file=""
+
+while IFS= read -r line; 
+do
+    new_bashly_file="$new_bashly_file$line\n"
+done < "$append_to"
+
+new_bashly_file="$new_bashly_file$files"
+
+echo -e $new_bashly_file > $(get_cli_path)/src/bashly.yml
+
+docker run --rm --user $(id -u):$(id -g) --volume "$(get_cli_path):/app" dannyben/bashly generate
+sleep 3 # wait a bit for generation
+docker run --rm --user $(id -u):$(id -g) --volume "$(get_cli_path):/app" dannyben/bashly add comp script --force
+
+lightgreen "nightwind cli extended from any available commands in $HOME/.nightwind/commands."

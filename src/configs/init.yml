@@ -1,0 +1,20 @@
+name: init
+short: i
+help: Initialize project .nightwind directory & template files.
+filename: commands/init
+filters:
+  - is_laravel_directory
+  - env_file_required
+flags:
+- long: --force
+  help: Overwrite existing files.
+    
+- long: --domain
+  help: The application domain. e.g mysite.local or myproductionsite.com
+  arg: domain
+  default: app.test
+- long: --laravel
+  help: Generate a docker compose yaml file for running laravel specific background containers.
+dependencies:
+  - find
+  - sed

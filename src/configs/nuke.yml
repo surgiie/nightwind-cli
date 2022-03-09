@@ -1,0 +1,13 @@
+name: nuke
+short: n
+help: Nuke all project docker compose services & volumes.
+catch_all: true
+filename: commands/nuke
+filters:
+  - is_laravel_directory
+  - docker_running
+  - env_file_required
+  - requires_rendered_files
+dependencies:
+  - docker
+  - find

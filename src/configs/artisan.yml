@@ -1,0 +1,19 @@
+name: artisan
+short: a
+help: Proxy a artisan command to the app service container.
+catch_all: true
+filename: commands/artisan
+filters:
+- is_laravel_directory
+- docker_running
+- requires_variables
+dependencies:
+  - docker
+flags:
+- long: --container
+  arg: container
+  default: app
+  help: Specify container name if custom. 
+args:
+- name: command
+  help: The command to execute. 

@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Initialize project .nightwind folder.
+
+variables_file=".nightwind/variables.yaml"
+domain=${args[--domain]}
+
+if [ -f $variables_file ] && [ -z $domain ] && [[ ${args[--force]} != '1' ]]; then
+    eval $(yaml_load $variables_file)
+fi
+
+mkdir -p ".nightwind"
+
+current_dir=$(pwd)
+tag_prefix="$(basename $current_dir)"
+tag_prefix=$(echo "$tag_prefix" | sed 's/\\_/-/g')
+
+# generate the initial variables file.
+if [ ! -f '.nightwind/variables.yaml' ] || [[ ${args[--force]} == '1' ]];
+then
+    variables_temp="$(get_cli_path)/stubs/templates/variables.yaml.blade"
+    contents="$(cat $variables_temp)"
+    contents=$(echo "$contents" | sed "s/\@{[ \t]*domain[ \t]*}/$domain/g")
+    contents=$(echo "$contents" | sed "s/\@{[ \t]*tag_prefix[ \t]*}/$tag_prefix/g")
+    echo "$contents" > ".nightwind/variables.yaml"
+fi
+
+make_stub(){
+    file=$1
+    relative_path="${file##*stubs/}" 
+    destination_path=".nightwind/$relative_path" 
+    mkdir -p "$(dirname $destination_path)" ## ensure parent directory exists
+    make_file $destination_path ".nightwind/$stub_type/$relative_path" "$(cat $file)" ${args[--force]}
+}
+
+## generate stubs directory/files except variables.yml as thats's been handled explictly above.
+for template in $(find $(get_cli_path)/stubs -type f ! -name variables.yaml.blade); 
+do 
+    make_stub $template
+done
+
+# create a .gitignore to ignore rendered files
+if [ ! -f ".nightwind/.gitignore" ];
+then 
+    echo -e "rendered/" > ".nightwind/.gitignore"
+fi
+
+# copy the renderer app to $HOME to have a writable workspace for rendering project files.
+mkdir -p "$HOME/.nightwind/renderer"
+for file in $(find $(get_cli_path)/src/renderer -type f); 
+do 
+    relative_path="${file##*/renderer/}" 
+    destination_path="$HOME/.nightwind/renderer/$relative_path" 
+    mkdir -p "$(dirname $destination_path)" ## ensure parent directory exists
+    make_file $destination_path "$HOME/.nightwind/renderer/$relative_path" "$(cat $file)" ${args[--force]}
+done
+
+# make sure renderer script is executable
+chmod +x $HOME/.nightwind/renderer/render
+
+lightgreen "Initialized .nightwind directory & files."

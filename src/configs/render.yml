@@ -1,0 +1,15 @@
+name: render
+short: r
+help: Render the project's .nightwind template files.
+filename: commands/render
+filters:
+  - is_laravel_directory
+  - env_file_required
+  - requires_variables
+dependencies:
+  - find
+flags:
+- long: --rebuild
+  help: Rebuild the nightwind/renderer image.
+- long: --remove
+  help: Remove the nightwind/renderer image when done.

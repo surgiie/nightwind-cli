@@ -1,0 +1,37 @@
+
+#!/bin/bash
+
+# This script is called after `nightwind up` performs tasks/starts services.
+
+set -e
+
+# install dependencies if not already present.
+if [ ! -d "vendor" ];
+then
+    nightwind composer install
+fi
+
+if [ ! -d "node_modules" ];
+then
+    nighwind npm install
+fi
+
+# generate key if not set
+if [ -z "$APP_KEY" ];
+then
+    nighwind artisan key:generate
+fi
+
+# customize as needed:
+
+# mysql might not be ready to accept connections so make sure it's ready before attempting migrate, check that our health check (defined in yaml file) is healthy.
+
+printf "Waiting for mysql to accept connections \n"; 
+while [ $(docker inspect --format "@{{json .State.Health.Status }}" {{$tag_prefix}}-database) != "\"healthy\"" ]; 
+do 
+    printf "."; 
+    sleep 1; 
+done
+
+nightwind artisan migrate --seed
+nightwind artisan storage:link
