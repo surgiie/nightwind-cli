@@ -18,14 +18,7 @@ Manage your laravel project's docker compose setup with blade rendered template 
 
 ## Installation
 
-Clone repo or download specific tag version:
-
-```bash
-cd /usr/local/bin && git clone git@github.com:collab-corp/nightwind-cli.git
-
-```
-
-Make sure it will be available in $PATH:
+Download specific tag/version and make available in $PATH:
 
 ```
 # in ~/.bashrc or equivalent
