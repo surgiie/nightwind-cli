@@ -1,10 +1,4 @@
 server {
-    @if($APP_ENV == 'production')
-    location ^~/.well-known/acme-challenge/ {
-        allow all;
-        root /var/www/certbot;
-    }
-    @endif
 
     if ($host = {{$domain}}) {
         return 301 https://$host$request_uri;
@@ -69,12 +63,7 @@ server{
     location / {
         try_files $uri $uri/ /index.php$is_args$args;
     }
-    @if($APP_ENV == 'production')
-    location ^~/.well-known/acme-challenge/ {
-        allow all;
-        root /var/www/certbot;
-    }
-    @endif
+
     # let fpm convert the web request so php can handle it
     location ~\.php$ {
         try_files $uri =404;
