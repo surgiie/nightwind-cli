@@ -34,7 +34,7 @@ Executed before `nightwind up` starts doing anything. File: `.nightwind/rendered
 
 #### After Up
 
-Executed after `nightwind up` starts services (successfully). File: `.nightwind/rendered/hooks/After`
+Executed after `nightwind up` starts services (successfully). File: `.nightwind/rendered/hooks/after_up`
 
 
 
