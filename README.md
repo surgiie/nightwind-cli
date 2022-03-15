@@ -67,9 +67,9 @@ At this point, review `.nightwind/rendered` files and be sure you are happy with
 
 To edit the template data for your templates, add key/value pairs to your `.nightwind/variables.yaml` file.
 
-These key value pairs will become used during rendering for variables. In addition to this file, your project's `.env` file is also used for variable data.
+These key value pairs will used during rendering for variables. In addition to this file, your project's `.env` file is also used for variable data.
 
-This means. you can do this `{{ $APP_ENV }}` wihout having to duplicate your application's env value in both the `.env` and the `.nightwind/variables.yaml`.
+As an example,`{{ $APP_ENV }}` can be used wihout having to duplicate your application's env value in both the `.env` and the `.nightwind/variables.yaml`.
 
 See [Blade](https://laravel.com/docs/9.x/blade) for docs on templating specific syntax/features.
 
