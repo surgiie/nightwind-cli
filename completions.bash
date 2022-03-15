@@ -10,13 +10,13 @@ _nightwind_completions() {
   case "$comp_line" in
     'composer'*) COMPREPLY=($(compgen -W "--container --help -h" -- "$cur")) ;;
     'artisan'*) COMPREPLY=($(compgen -W "--container --help -h" -- "$cur")) ;;
-    'render'*) COMPREPLY=($(compgen -W "--help --rebuild --remove -h" -- "$cur")) ;;
     'extend'*) COMPREPLY=($(compgen -W "--help -h" -- "$cur")) ;;
+    'render'*) COMPREPLY=($(compgen -W "--help --rebuild --remove -h" -- "$cur")) ;;
     'build'*) COMPREPLY=($(compgen -W "--help -h" -- "$cur")) ;;
     'init'*) COMPREPLY=($(compgen -W "--domain --force --help --laravel -h" -- "$cur")) ;;
+    'exec'*) COMPREPLY=($(compgen -W "--help -h" -- "$cur")) ;;
     'logs'*) COMPREPLY=($(compgen -W "--help -h" -- "$cur")) ;;
     'nuke'*) COMPREPLY=($(compgen -W "--help -h" -- "$cur")) ;;
-    'exec'*) COMPREPLY=($(compgen -W "--help -h" -- "$cur")) ;;
     'npm'*) COMPREPLY=($(compgen -W "--container --help -h" -- "$cur")) ;;
     'up'*) COMPREPLY=($(compgen -W "--force --help -h" -- "$cur")) ;;
     ''*) COMPREPLY=($(compgen -W "--help --version -h -v artisan build composer exec extend init logs npm nuke render up" -- "$cur")) ;;

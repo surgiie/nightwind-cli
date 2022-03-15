@@ -1,13 +1,14 @@
 # Show the logo if no commands are being called or a --help option is present
 
-# header.sh doesnt have access to lib/helpers for some reason. 
+# header.sh doesnt have access to lib/helpers for some reason.
 cli_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
 source "$cli_path/src/lib/colors.sh"
 source "$cli_path/src/lib/helpers.sh"
 
 if [ "$#" -eq 0 ] || [[ "$*" == *--help* ]]; then
-    export LOGO_TEXT=$(cat <<EOF
+    export LOGO_TEXT=$(
+        cat <<EOF
 
                 █▄░█ █ █▀▀ █░█ ▀█▀ █░█░█ █ █▄░█ █▀▄
                 █░▀█ █ █▄█ █▀█ ░█░ ▀▄▀▄▀ █ █░▀█ █▄▀
@@ -15,7 +16,8 @@ if [ "$#" -eq 0 ] || [[ "$*" == *--help* ]]; then
 EOF
     )
 
-    export LOGO_BOAT=$(cat <<EOF
+    export LOGO_BOAT=$(
+        cat <<EOF
     
 *     .  *        *                    *           .     .  *        *                    *
     .         '       .        .     .        .         '       .        .     .

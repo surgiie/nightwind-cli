@@ -1,14 +1,14 @@
 # Show the logo if no commands are being called or a --help option is present
 
 # header.sh doesnt have access to lib/helpers for some reason.
-
 cli_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
 source "$cli_path/src/lib/colors.sh"
 source "$cli_path/src/lib/helpers.sh"
 
 if [ "$#" -eq 0 ] || [[ "$*" == *--help* ]]; then
-    export LOGO_TEXT=$(cat <<EOF
+    export LOGO_TEXT=$(
+        cat <<EOF
 
                 █▄░█ █ █▀▀ █░█ ▀█▀ █░█░█ █ █▄░█ █▀▄
                 █░▀█ █ █▄█ █▀█ ░█░ ▀▄▀▄▀ █ █░▀█ █▄▀
@@ -16,7 +16,8 @@ if [ "$#" -eq 0 ] || [[ "$*" == *--help* ]]; then
 EOF
     )
 
-    export LOGO_BOAT=$(cat <<EOF
+    export LOGO_BOAT=$(
+        cat <<EOF
 
 *     .  *        *                    *           .     .  *        *                    *
     .         '       .        .     .        .         '       .        .     .
@@ -1268,11 +1269,6 @@ parse_requirements() {
 nightwind_init_parse_requirements() {
   # :command.fixed_flag_filter
   case "${1:-}" in
-  --version | -v )
-    version_command
-    exit
-    ;;
-
   --help | -h )
     long_usage=yes
     nightwind_init_usage
@@ -1361,11 +1357,6 @@ nightwind_init_parse_requirements() {
 nightwind_build_parse_requirements() {
   # :command.fixed_flag_filter
   case "${1:-}" in
-  --version | -v )
-    version_command
-    exit
-    ;;
-
   --help | -h )
     long_usage=yes
     nightwind_build_usage
@@ -1438,11 +1429,6 @@ nightwind_build_parse_requirements() {
 nightwind_render_parse_requirements() {
   # :command.fixed_flag_filter
   case "${1:-}" in
-  --version | -v )
-    version_command
-    exit
-    ;;
-
   --help | -h )
     long_usage=yes
     nightwind_render_usage
@@ -1518,11 +1504,6 @@ nightwind_render_parse_requirements() {
 nightwind_up_parse_requirements() {
   # :command.fixed_flag_filter
   case "${1:-}" in
-  --version | -v )
-    version_command
-    exit
-    ;;
-
   --help | -h )
     long_usage=yes
     nightwind_up_usage
@@ -1607,11 +1588,6 @@ nightwind_up_parse_requirements() {
 nightwind_logs_parse_requirements() {
   # :command.fixed_flag_filter
   case "${1:-}" in
-  --version | -v )
-    version_command
-    exit
-    ;;
-
   --help | -h )
     long_usage=yes
     nightwind_logs_usage
@@ -1684,11 +1660,6 @@ nightwind_logs_parse_requirements() {
 nightwind_exec_parse_requirements() {
   # :command.fixed_flag_filter
   case "${1:-}" in
-  --version | -v )
-    version_command
-    exit
-    ;;
-
   --help | -h )
     long_usage=yes
     nightwind_exec_usage
@@ -1766,11 +1737,6 @@ nightwind_exec_parse_requirements() {
 nightwind_npm_parse_requirements() {
   # :command.fixed_flag_filter
   case "${1:-}" in
-  --version | -v )
-    version_command
-    exit
-    ;;
-
   --help | -h )
     long_usage=yes
     nightwind_npm_usage
@@ -1853,11 +1819,6 @@ nightwind_npm_parse_requirements() {
 nightwind_artisan_parse_requirements() {
   # :command.fixed_flag_filter
   case "${1:-}" in
-  --version | -v )
-    version_command
-    exit
-    ;;
-
   --help | -h )
     long_usage=yes
     nightwind_artisan_usage
@@ -1940,11 +1901,6 @@ nightwind_artisan_parse_requirements() {
 nightwind_composer_parse_requirements() {
   # :command.fixed_flag_filter
   case "${1:-}" in
-  --version | -v )
-    version_command
-    exit
-    ;;
-
   --help | -h )
     long_usage=yes
     nightwind_composer_usage
@@ -2027,11 +1983,6 @@ nightwind_composer_parse_requirements() {
 nightwind_nuke_parse_requirements() {
   # :command.fixed_flag_filter
   case "${1:-}" in
-  --version | -v )
-    version_command
-    exit
-    ;;
-
   --help | -h )
     long_usage=yes
     nightwind_nuke_usage
@@ -2104,11 +2055,6 @@ nightwind_nuke_parse_requirements() {
 nightwind_extend_parse_requirements() {
   # :command.fixed_flag_filter
   case "${1:-}" in
-  --version | -v )
-    version_command
-    exit
-    ;;
-
   --help | -h )
     long_usage=yes
     nightwind_extend_usage
