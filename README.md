@@ -25,10 +25,6 @@ Download specific tag/version and make available in $PATH:
 PATH=/usr/local/bin/nightwind:$PATH
 ```
 
-Also be sure this directory is writable to your user in some fashion, such as a user group:
-
-`chown -R root:some-user-group /usr/local/bin/nightwind`
-
 ### Optionally source bash completion:
 
 `source /path/to/where/you/put/this/completions.bash`
@@ -37,15 +33,39 @@ Also be sure this directory is writable to your user in some fashion, such as a 
 
 ### Initialize Project
 
-To initialize your project files, run:
+To initialize your project to use `nightwind`, run:
 
 ```bash
-# --domain defaults to app.test, maybe excluded if okay with default, otherwise change according to your current env's domain.
-nightwind init --domain=mysite.com
+nightwind init 
 ```
 
 This will generate some default template files for running a laravel application in docker with the following services: `php-fpm`, `nginx`, `redis` & `mysql`.
 
+#### Customize Initial Variables:
+
+You should then customize the values of `.nightwind/variables.json` to your liking or to your environment's requirements:
+
+```js
+{
+    "domain": "app.test", // the domain/hostname of your app, should be changed to reflect env domain.
+    "db_host_port": 3306,
+    "redis_host_port": 6379,
+    "docker_user_uid": 1000,  // the linux user uid for the application dockerfile
+    "docker_php_version": 8.1, // the php version for the application dockerfile
+    "nginx_host_http_port": 80,
+    "nginx_host_https_port": 443,
+    "docker_username": "nightwind", // the linux username for the application dockerfile 
+    "docker_tag_namespace": "nightwind" // tag namespace to use for tagging/naming docker resources
+
+}
+```
+
+You should also add any custom variable data you plan to reference here. Naming convention can be whatever but variable reference should be camel case. See template data section for more.
+
+**Note** - When updating or changing this file, if you have existing containers, you should remove/prune them before restarting services.
+
+
+<!-- 
 ### Start Services
 
 #### Templates
@@ -142,9 +162,9 @@ _Note_ Your usual starting commands could be done via the `.nightwind/rendered/h
 ### Extending/Custom Commands
 
 `nightwind` is extensible via [Bashly](https://bashly.dannyb.co/configuration/command/) by adding your command yaml files to `~/.nightwind/commands` and
-utilizing symlinks to have bashly include your scripts when rebuilding the cli. To clarify, here is steps needed:
+utilizing symlinks to have bashly include your scripts when rebuilding the cli. As an example, lets add a `myscript`:
 
-1. Create a custom command yaml definition file as documented in bashly docs in `~/.nightwind/commands`.
+1. Create a custom command yaml definition file as documented in bashly docs in `~/.nightwind/commands/myscript`.
 2. This file should contain a custom filename so that bashly generates a file for it in directory you can symlink to. `filename: custom/myscript`
 3. Symlink a directory to this location so you can manage your script files: `ln -s /usr/local/bin/nightwind/src/custom ~/.nightwind/custom`
 4. Run `nightwind extend`
@@ -167,4 +187,4 @@ or remove the image if you are not going to be regenerating the cli often.
 ### Kudos
 
 - Ascii Text For Logo - [https://fsymbols.com/generators/carty/](https://fsymbols.com/generators/carty/)
-- [Bashly](https://bashly.dannyb.co/installation/) for feature rich bash cli generation.
+- [Bashly](https://bashly.dannyb.co/installation/) for feature rich bash cli generation. -->

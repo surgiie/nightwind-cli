@@ -40,6 +40,8 @@ EOF
     bold "$LOGO_BOAT"
 fi
 
+# :command.master_script
+
 # :command.version_command
 version_command() {
   echo "$version"
@@ -74,7 +76,6 @@ nightwind_usage() {
   echo "  artisan    Proxy a artisan command to the app service container."
   echo "  composer   Proxy a composer command to the app service container."
   echo "  nuke       Nuke all project docker compose services & volumes."
-  echo "  extend     Extend nightwind cli from your bashly yaml files contained in .nightwind/commands."
   echo
 
   if [[ -n $long_usage ]]; then
@@ -102,7 +103,7 @@ nightwind_init_usage() {
 
   fi
 
-  printf "Shortcut: i\n"
+  printf "Alias: i\n"
   echo
 
   printf "Usage:\n"
@@ -122,17 +123,6 @@ nightwind_init_usage() {
     printf "    Overwrite existing files.\n"
     echo
 
-    # :flag.usage
-    echo "  --domain DOMAIN"
-    printf "    The application domain. e.g mysite.local or myproductionsite.com\n"
-    printf "    Default: app.test\n"
-    echo
-
-    # :flag.usage
-    echo "  --laravel"
-    printf "    Generate a docker compose yaml file for running laravel specific background\n    containers.\n"
-    echo
-
   fi
 }
 
@@ -148,7 +138,7 @@ nightwind_build_usage() {
 
   fi
 
-  printf "Shortcut: b\n"
+  printf "Alias: b\n"
   echo
 
   printf "Usage:\n"
@@ -186,7 +176,7 @@ nightwind_render_usage() {
 
   fi
 
-  printf "Shortcut: r\n"
+  printf "Alias: r\n"
   echo
 
   printf "Usage:\n"
@@ -226,7 +216,7 @@ nightwind_up_usage() {
 
   fi
 
-  printf "Shortcut: u\n"
+  printf "Alias: u\n"
   echo
 
   printf "Usage:\n"
@@ -261,7 +251,7 @@ nightwind_logs_usage() {
 
   fi
 
-  printf "Shortcut: l\n"
+  printf "Alias: l\n"
   echo
 
   printf "Usage:\n"
@@ -299,7 +289,7 @@ nightwind_exec_usage() {
 
   fi
 
-  printf "Shortcut: e\n"
+  printf "Alias: e\n"
   echo
 
   printf "Usage:\n"
@@ -343,7 +333,7 @@ nightwind_npm_usage() {
 
   fi
 
-  printf "Shortcut: np\n"
+  printf "Alias: np\n"
   echo
 
   printf "Usage:\n"
@@ -386,7 +376,7 @@ nightwind_artisan_usage() {
 
   fi
 
-  printf "Shortcut: a\n"
+  printf "Alias: a\n"
   echo
 
   printf "Usage:\n"
@@ -429,7 +419,7 @@ nightwind_composer_usage() {
 
   fi
 
-  printf "Shortcut: c\n"
+  printf "Alias: c\n"
   echo
 
   printf "Usage:\n"
@@ -472,42 +462,12 @@ nightwind_nuke_usage() {
 
   fi
 
-  printf "Shortcut: n\n"
+  printf "Alias: n\n"
   echo
 
   printf "Usage:\n"
   printf "  nightwind nuke [...]\n"
   printf "  nightwind nuke --help | -h\n"
-  echo
-
-  if [[ -n $long_usage ]]; then
-    printf "Options:\n"
-    # :command.usage_fixed_flags
-    echo "  --help, -h"
-    printf "    Show this help\n"
-    echo
-
-  fi
-}
-
-# :command.usage
-nightwind_extend_usage() {
-  if [[ -n $long_usage ]]; then
-    printf "nightwind extend - Extend nightwind cli from your bashly yaml files contained in .nightwind/commands.\n"
-    echo
-
-  else
-    printf "nightwind extend - Extend nightwind cli from your bashly yaml files contained in .nightwind/commands.\n"
-    echo
-
-  fi
-
-  printf "Shortcut: ext\n"
-  echo
-
-  printf "Usage:\n"
-  printf "  nightwind extend\n"
-  printf "  nightwind extend --help | -h\n"
   echo
 
   if [[ -n $long_usage ]]; then
@@ -565,7 +525,7 @@ inspect_args() {
 }
 
 # :command.user_lib
-# :src/lib/colors.sh
+# src/lib/colors.sh
 print_in_color() {
   local color="$1"
   shift
@@ -598,7 +558,7 @@ blue_underlined() { print_in_color "\e[4;34m" "$*"; }
 magenta_underlined() { print_in_color "\e[4;35m" "$*"; }
 cyan_underlined() { print_in_color "\e[4;36m" "$*"; }
 
-# :src/lib/filters.sh
+# src/lib/filters.sh
 #!/bin/bash
 
 filter_docker_running() {
@@ -636,7 +596,7 @@ filter_requires_rendered_files(){
     fi
 }
 
-# :src/lib/helpers.sh
+# src/lib/helpers.sh
 #!/bin/bash
 get_cli_path(){
     echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
@@ -729,7 +689,7 @@ build_project_images(){
     fi
 }
 
-# :src/lib/yaml.sh
+# src/lib/yaml.sh
 yaml_load() {
    local prefix=$2
    local s='[[:space:]]*' w='[a-zA-Z0-9_]*'
@@ -754,33 +714,15 @@ yaml_load() {
 # :command.command_functions
 # :command.function
 nightwind_init_command() {
-  # :src/commands/init
+  # src/commands/init
   #!/bin/bash
 
   # Initialize project .nightwind folder.
-
-  variables_file=".nightwind/variables.yaml"
   domain=${args[--domain]}
-
-  if [ -f $variables_file ] && [ -z $domain ] && [[ ${args[--force]} != '1' ]]; then
-      eval $(yaml_load $variables_file)
-  fi
 
   mkdir -p ".nightwind"
 
   current_dir=$(pwd)
-  tag_prefix="$(basename $current_dir)"
-  tag_prefix=$(echo "$tag_prefix" | sed 's/\\_/-/g')
-
-  # generate the initial variables file.
-  if [ ! -f '.nightwind/variables.yaml' ] || [[ ${args[--force]} == '1' ]];
-  then
-      variables_temp="$(get_cli_path)/stubs/templates/variables.yaml.blade"
-      contents="$(cat $variables_temp)"
-      contents=$(echo "$contents" | sed "s/\@{[ \t]*domain[ \t]*}/$domain/g")
-      contents=$(echo "$contents" | sed "s/\@{[ \t]*tag_prefix[ \t]*}/$tag_prefix/g")
-      echo "$contents" > ".nightwind/variables.yaml"
-  fi
 
   make_stub(){
       file=$1
@@ -806,29 +748,12 @@ nightwind_init_command() {
       echo -e "rendered/" > ".nightwind/.gitignore"
   fi
 
-  # copy the renderer app to $HOME to have a writable workspace for rendering project files.
-  mkdir -p "$HOME/.nightwind/renderer"
-  for file in $(find $(get_cli_path)/src/renderer -type f);
-
-  do
-
-      relative_path="${file##*/renderer/}"
-
-      destination_path="$HOME/.nightwind/renderer/$relative_path"
-
-      mkdir -p "$(dirname $destination_path)" ## ensure parent directory exists
-      make_file $destination_path "$HOME/.nightwind/renderer/$relative_path" "$(cat $file)" ${args[--force]}
-  done
-
-  # make sure renderer script is executable
-  chmod +x $HOME/.nightwind/renderer/render
-
   lightgreen "Initialized .nightwind directory & files."
 }
 
 # :command.function
 nightwind_build_command() {
-  # :src/commands/build
+  # src/commands/build
   #!/bin/bash
 
   # Build .nightwind/rendered/dockerfiles images.
@@ -855,7 +780,7 @@ nightwind_build_command() {
 
 # :command.function
 nightwind_render_command() {
-  # :src/commands/render
+  # src/commands/render
 
   #!/bin/bash
 
@@ -900,7 +825,7 @@ nightwind_render_command() {
 
 # :command.function
 nightwind_up_command() {
-  # :src/commands/up
+  # src/commands/up
   #!/bin/bash
 
   # Startup project docker compose services from vailable docker compose yaml files.
@@ -963,7 +888,7 @@ nightwind_up_command() {
 
 # :command.function
 nightwind_logs_command() {
-  # :src/commands/logs
+  # src/commands/logs
 
   #!/bin/bash
 
@@ -979,14 +904,14 @@ nightwind_logs_command() {
 
 # :command.function
 nightwind_exec_command() {
-  # :src/commands/exec
+  # src/commands/exec
   # Exec a command on a project container.
   exec_command ${args[container]} ${args[command]} other_args
 }
 
 # :command.function
 nightwind_npm_command() {
-  # :src/commands/npm
+  # src/commands/npm
   #!/bin/bash
 
   variables_file=".nightwind/variables.yaml"
@@ -1002,7 +927,7 @@ nightwind_npm_command() {
 
 # :command.function
 nightwind_artisan_command() {
-  # :src/commands/artisan
+  # src/commands/artisan
   #!/bin/bash
   variables_file=".nightwind/variables.yaml"
   eval $(yaml_load $variables_file)
@@ -1017,14 +942,14 @@ nightwind_artisan_command() {
 
 # :command.function
 nightwind_composer_command() {
-  # :src/commands/composer
+  # src/commands/composer
   #!/bin/bash
   exec_command ${args[--container]} "composer ${args[command]}" other_args
 }
 
 # :command.function
 nightwind_nuke_command() {
-  # :src/commands/nuke
+  # src/commands/nuke
   #!/bin/bash
 
   # Nuke docker services associated with project.
@@ -1065,65 +990,9 @@ nightwind_nuke_command() {
   fi
 }
 
-# :command.function
-nightwind_extend_command() {
-  # :src/commands/extend
-  #!/bin/bash
-  if [ ! -d "$HOME/.nightwind/commands" ] || [ -z "$(ls -A "$HOME/.nightwind/commands")" ]
-  then
-      echo "$(red There are no command files to extend the cli with)"
-  fi
-
-  files=""
-  mkdir -p  $HOME/.nightwind/commands
-
-  for command in $(find $HOME/.nightwind/commands -type f -name '*.yml' -o -name '*.yaml');
-
-  do
-      cmd=$(basename $command)
-      files="$files  - import: src/extended/$cmd\n"
-  done
-
-  if [ -z "$files" ];
-  then
-      rm -rf $HOME/.nightwind/custom/*
-  fi
-
-  rm -rf $(get_cli_path)/src/extended
-  cp -R $HOME/.nightwind/commands "$(get_cli_path)/src/extended";
-
-  bashly_file="$(get_cli_path)/src/bashly.yml"
-  truth_bashly_file="$(get_cli_path)/src/bashly.yml.current"
-
-  if [ ! -f "$truth_bashly_file" ];
-  then
-      append_to="$bashly_file"
-      cp "$bashly_file" $truth_bashly_file
-  else
-      append_to="$truth_bashly_file"
-  fi
-  new_bashly_file=""
-
-  while IFS= read -r line;
-
-  do
-      new_bashly_file="$new_bashly_file$line\n"
-  done < "$append_to"
-
-  new_bashly_file="$new_bashly_file$files"
-
-  echo -e $new_bashly_file > $(get_cli_path)/src/bashly.yml
-
-  docker run --rm --user $(id -u):$(id -g) --volume "$(get_cli_path):/app" dannyben/bashly generate
-  sleep 3 # wait a bit for generation
-  docker run --rm --user $(id -u):$(id -g) --volume "$(get_cli_path):/app" dannyben/bashly add comp script --force
-
-  lightgreen "nightwind cli extended from any available commands in $HOME/.nightwind/commands."
-}
-
 # :command.parse_requirements
 parse_requirements() {
-  # :command.fixed_flag_filter
+  # :command.fixed_flags_filter
   case "${1:-}" in
   --version | -v )
     version_command
@@ -1216,13 +1085,6 @@ parse_requirements() {
     shift $#
     ;;
 
-  extend | ext )
-    action="extend"
-    shift
-    nightwind_extend_parse_requirements "$@"
-    shift $#
-    ;;
-
   # :command.command_fallback
   "" )
     nightwind_usage
@@ -1251,6 +1113,7 @@ parse_requirements() {
 
     * )
       # :command.parse_requirements_case
+      # :command.parse_requirements_case_simple
       printf "invalid argument: %s\n" "$key"
       exit 1
       ;;
@@ -1267,7 +1130,7 @@ parse_requirements() {
 
 # :command.parse_requirements
 nightwind_init_parse_requirements() {
-  # :command.fixed_flag_filter
+  # :command.fixed_flags_filter
   case "${1:-}" in
   --help | -h )
     long_usage=yes
@@ -1295,28 +1158,8 @@ nightwind_init_parse_requirements() {
     # :flag.case
     --force )
       # :flag.conflicts
+      # :flag.case_no_arg
       args[--force]=1
-      shift
-      ;;
-
-    # :flag.case
-    --domain )
-      # :flag.conflicts
-      if [[ -n ${2+x} ]]; then
-        # :flag.validations
-        args[--domain]="$2"
-        shift
-        shift
-      else
-        printf "%s\n" "--domain requires an argument: --domain DOMAIN"
-        exit 1
-      fi
-      ;;
-
-    # :flag.case
-    --laravel )
-      # :flag.conflicts
-      args[--laravel]=1
       shift
       ;;
 
@@ -1327,6 +1170,7 @@ nightwind_init_parse_requirements() {
 
     * )
       # :command.parse_requirements_case
+      # :command.parse_requirements_case_simple
       printf "invalid argument: %s\n" "$key"
       exit 1
       ;;
@@ -1337,7 +1181,6 @@ nightwind_init_parse_requirements() {
   # :command.required_flags_filter
   # :command.catch_all_filter
   # :command.default_assignments
-  [[ -n ${args[--domain]:-} ]] || args[--domain]="app.test"
   # :command.whitelist_filter
   # :command.user_filter
   filter_error=$(filter_is_laravel_directory)
@@ -1355,7 +1198,7 @@ nightwind_init_parse_requirements() {
 
 # :command.parse_requirements
 nightwind_build_parse_requirements() {
-  # :command.fixed_flag_filter
+  # :command.fixed_flags_filter
   case "${1:-}" in
   --help | -h )
     long_usage=yes
@@ -1388,6 +1231,7 @@ nightwind_build_parse_requirements() {
 
     * )
       # :command.parse_requirements_case
+      # :command.parse_requirements_case_catch_all
       if [[ -z ${args[target]+x} ]]; then
         # :argument.validations
         args[target]=$1
@@ -1427,7 +1271,7 @@ nightwind_build_parse_requirements() {
 
 # :command.parse_requirements
 nightwind_render_parse_requirements() {
-  # :command.fixed_flag_filter
+  # :command.fixed_flags_filter
   case "${1:-}" in
   --help | -h )
     long_usage=yes
@@ -1451,6 +1295,7 @@ nightwind_render_parse_requirements() {
     # :flag.case
     --rebuild )
       # :flag.conflicts
+      # :flag.case_no_arg
       args[--rebuild]=1
       shift
       ;;
@@ -1458,6 +1303,7 @@ nightwind_render_parse_requirements() {
     # :flag.case
     --remove )
       # :flag.conflicts
+      # :flag.case_no_arg
       args[--remove]=1
       shift
       ;;
@@ -1469,6 +1315,7 @@ nightwind_render_parse_requirements() {
 
     * )
       # :command.parse_requirements_case
+      # :command.parse_requirements_case_simple
       printf "invalid argument: %s\n" "$key"
       exit 1
       ;;
@@ -1502,7 +1349,7 @@ nightwind_render_parse_requirements() {
 
 # :command.parse_requirements
 nightwind_up_parse_requirements() {
-  # :command.fixed_flag_filter
+  # :command.fixed_flags_filter
   case "${1:-}" in
   --help | -h )
     long_usage=yes
@@ -1530,6 +1377,7 @@ nightwind_up_parse_requirements() {
     # :flag.case
     --force )
       # :flag.conflicts
+      # :flag.case_no_arg
       args[--force]=1
       shift
       ;;
@@ -1541,8 +1389,9 @@ nightwind_up_parse_requirements() {
 
     * )
       # :command.parse_requirements_case
-        other_args+=("$1")
-        shift
+      # :command.parse_requirements_case_catch_all
+      other_args+=("$1")
+      shift
       ;;
 
     esac
@@ -1586,7 +1435,7 @@ nightwind_up_parse_requirements() {
 
 # :command.parse_requirements
 nightwind_logs_parse_requirements() {
-  # :command.fixed_flag_filter
+  # :command.fixed_flags_filter
   case "${1:-}" in
   --help | -h )
     long_usage=yes
@@ -1615,6 +1464,7 @@ nightwind_logs_parse_requirements() {
 
     * )
       # :command.parse_requirements_case
+      # :command.parse_requirements_case_catch_all
       if [[ -z ${args[container]+x} ]]; then
         # :argument.validations
         args[container]=$1
@@ -1658,7 +1508,7 @@ nightwind_logs_parse_requirements() {
 
 # :command.parse_requirements
 nightwind_exec_parse_requirements() {
-  # :command.fixed_flag_filter
+  # :command.fixed_flags_filter
   case "${1:-}" in
   --help | -h )
     long_usage=yes
@@ -1687,6 +1537,7 @@ nightwind_exec_parse_requirements() {
 
     * )
       # :command.parse_requirements_case
+      # :command.parse_requirements_case_catch_all
       if [[ -z ${args[container]+x} ]]; then
         # :argument.validations
         args[container]=$1
@@ -1735,7 +1586,7 @@ nightwind_exec_parse_requirements() {
 
 # :command.parse_requirements
 nightwind_npm_parse_requirements() {
-  # :command.fixed_flag_filter
+  # :command.fixed_flags_filter
   case "${1:-}" in
   --help | -h )
     long_usage=yes
@@ -1759,6 +1610,7 @@ nightwind_npm_parse_requirements() {
     # :flag.case
     --container )
       # :flag.conflicts
+      # :flag.case_arg
       if [[ -n ${2+x} ]]; then
         # :flag.validations
         args[--container]="$2"
@@ -1777,6 +1629,7 @@ nightwind_npm_parse_requirements() {
 
     * )
       # :command.parse_requirements_case
+      # :command.parse_requirements_case_catch_all
       if [[ -z ${args[command]+x} ]]; then
         # :argument.validations
         args[command]=$1
@@ -1817,7 +1670,7 @@ nightwind_npm_parse_requirements() {
 
 # :command.parse_requirements
 nightwind_artisan_parse_requirements() {
-  # :command.fixed_flag_filter
+  # :command.fixed_flags_filter
   case "${1:-}" in
   --help | -h )
     long_usage=yes
@@ -1841,6 +1694,7 @@ nightwind_artisan_parse_requirements() {
     # :flag.case
     --container )
       # :flag.conflicts
+      # :flag.case_arg
       if [[ -n ${2+x} ]]; then
         # :flag.validations
         args[--container]="$2"
@@ -1859,6 +1713,7 @@ nightwind_artisan_parse_requirements() {
 
     * )
       # :command.parse_requirements_case
+      # :command.parse_requirements_case_catch_all
       if [[ -z ${args[command]+x} ]]; then
         # :argument.validations
         args[command]=$1
@@ -1899,7 +1754,7 @@ nightwind_artisan_parse_requirements() {
 
 # :command.parse_requirements
 nightwind_composer_parse_requirements() {
-  # :command.fixed_flag_filter
+  # :command.fixed_flags_filter
   case "${1:-}" in
   --help | -h )
     long_usage=yes
@@ -1923,6 +1778,7 @@ nightwind_composer_parse_requirements() {
     # :flag.case
     --container )
       # :flag.conflicts
+      # :flag.case_arg
       if [[ -n ${2+x} ]]; then
         # :flag.validations
         args[--container]="$2"
@@ -1941,6 +1797,7 @@ nightwind_composer_parse_requirements() {
 
     * )
       # :command.parse_requirements_case
+      # :command.parse_requirements_case_catch_all
       if [[ -z ${args[command]+x} ]]; then
         # :argument.validations
         args[command]=$1
@@ -1981,7 +1838,7 @@ nightwind_composer_parse_requirements() {
 
 # :command.parse_requirements
 nightwind_nuke_parse_requirements() {
-  # :command.fixed_flag_filter
+  # :command.fixed_flags_filter
   case "${1:-}" in
   --help | -h )
     long_usage=yes
@@ -2014,8 +1871,9 @@ nightwind_nuke_parse_requirements() {
 
     * )
       # :command.parse_requirements_case
-        other_args+=("$1")
-        shift
+      # :command.parse_requirements_case_catch_all
+      other_args+=("$1")
+      shift
       ;;
 
     esac
@@ -2051,63 +1909,13 @@ nightwind_nuke_parse_requirements() {
   fi
 }
 
-# :command.parse_requirements
-nightwind_extend_parse_requirements() {
-  # :command.fixed_flag_filter
-  case "${1:-}" in
-  --help | -h )
-    long_usage=yes
-    nightwind_extend_usage
-    exit
-    ;;
-
-  esac
-  # :command.environment_variables_filter
-  # :command.dependencies_filter
-  if ! [[ -x "$(command -v docker)" ]]; then
-    printf "missing dependency: docker\n"
-    exit 1
-  fi
-  # :command.command_filter
-  action="extend"
-  # :command.parse_requirements_while
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case "$key" in
-
-    -?* )
-      printf "invalid option: %s\n" "$key"
-      exit 1
-      ;;
-
-    * )
-      # :command.parse_requirements_case
-      printf "invalid argument: %s\n" "$key"
-      exit 1
-      ;;
-
-    esac
-  done
-  # :command.required_args_filter
-  # :command.required_flags_filter
-  # :command.catch_all_filter
-  # :command.default_assignments
-  # :command.whitelist_filter
-  # :command.user_filter
-  filter_error=$(filter_is_laravel_directory)
-  if [[ -n $filter_error ]]; then
-    echo "$filter_error"
-    exit 1
-  fi
-}
-
 # :command.initialize
 initialize() {
   version="v0.0.1"
   long_usage=''
   set -e
 
-  # :src/initialize.sh
+  # src/initialize.sh
   # Bootstrap things before executing command.
 
   # ensure .env file is sourced for this project.
@@ -2205,14 +2013,6 @@ run() {
       nightwind_nuke_usage
     else
       nightwind_nuke_command
-    fi
-
-  elif [[ $action == "extend" ]]; then
-    if [[ ${args[--help]:-} ]]; then
-      long_usage=yes
-      nightwind_extend_usage
-    else
-      nightwind_extend_command
     fi
 
   elif [[ $action == "root" ]]; then

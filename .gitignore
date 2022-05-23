@@ -1,3 +1,2 @@
-src/extended
-src/custom
-src/bashly.yml.current
+src/commands/custom
+composer.lock

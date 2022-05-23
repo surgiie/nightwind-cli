@@ -13,5 +13,4 @@ commands:
  - import: src/configs/npm.yml
  - import: src/configs/artisan.yml
  - import: src/configs/composer.yml
- - import: src/configs/nuke.yml
-#  - import: src/configs/extend.yml
+ - import: src/configs/extend.yml

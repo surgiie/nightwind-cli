@@ -1,8 +1,8 @@
 version: "3.8"
 services:
   app:
-    image: {{ $tag_prefix }}/app
-    container_name: {{ $tag_prefix }}-app
+    image: {{ $dockerTagNamespace }}/app
+    container_name: {{ $dockerTagNamespace }}-app
     restart: unless-stopped
     tty: true
     env_file: ../../../.env
@@ -11,56 +11,52 @@ services:
     volumes:
       - ../../../:/var/www/html
       - ../web-server/ssl:{{ $ssl_directory }}
-      - ../php.ini:/usr/local/etc/php/conf.d/php-{{ $tag_prefix }}.ini
+      - ../php.ini:/usr/local/etc/php/conf.d/php-{{ $dockerTagNamespace }}.ini
       - ../php-fpm.conf:/usr/local/etc/php-fpm.d/www.conf
     networks:
-      - {{ $tag_prefix }}-network
+      - {{ $dockerTagNamespace }}-network
     depends_on:
       - cache
       - database
-    @if($APP_ENV == 'local')
-    ports:
-      - "3000:3000" # expose port for tooling like vite remove as needed
-    @endif
   web-server:
-    image: {{ $tag_prefix }}/web-server
-    container_name: {{ $tag_prefix }}-web-server
+    image: {{ $dockerTagNamespace }}/web-server
+    container_name: {{ $dockerTagNamespace }}-web-server
     restart: unless-stopped
     env_file: ../../../.env
     tty: true
     ports:
-      - "${NGINX_PORT:-80}:80"
-      - "${NGINX_HTTPS_PORT:-443}:443"
+      - "{{ $nginxHostHttpPort }}:80"
+      - "{{ $nginxHostHttpsPort }}:443"
     volumes:
       - ../../../:/var/www/html
       - ../web-server/conf.d:/etc/nginx/conf.d
       - ../web-server/nginx.conf:/etc/nginx/nginx.conf
       - ../web-server/ssl:{{ $ssl_directory }}
     networks:
-      - {{ $tag_prefix }}-network
+      - {{ $dockerTagNamespace }}-network
   cache:
-    container_name: {{ $tag_prefix }}-cache
+    container_name: {{ $dockerTagNamespace }}-cache
     image: redis:6
     restart: unless-stopped
     env_file: ../../../.env
     tty: true
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "{{ $redisHostPort }}:6379"
     volumes:
-      - {{ $tag_prefix }}-redis:/data
+      - {{ $dockerTagNamespace }}-redis:/data
     networks:
-      - {{ $tag_prefix }}-network
+      - {{ $dockerTagNamespace }}-network
   database:
     image: mysql:8.0.27
-    container_name: {{ $tag_prefix }}-database
+    container_name: {{ $dockerTagNamespace }}-database
     restart: unless-stopped
     tty: true
     ports:
-      - "3306:3306"
+      - "{{ $dbHostPort }}:3306"
     volumes:
-      - {{ $tag_prefix }}-database:/var/lib/mysql/
+      - {{ $dockerTagNamespace }}-database:/var/lib/mysql/
     networks:
-      - {{ $tag_prefix }}-network
+      - {{ $dockerTagNamespace }}-network
     env_file: ../../../.env
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
@@ -73,12 +69,12 @@ services:
       timeout: 2s
       retries: 10
   scheduler:
-    image: {{ $tag_prefix }}/app
-    container_name: {{ $tag_prefix }}-scheduler
+    image: {{ $dockerTagNamespace }}/app
+    container_name: {{ $dockerTagNamespace }}-scheduler
     restart: unless-stopped
     env_file: ../../../.env
     networks:
-      - {{ $tag_prefix }}-network
+      - {{ $dockerTagNamespace }}-network
     depends_on:
       - app
     volumes:
@@ -92,11 +88,11 @@ services:
           done
         "
   queue:
-    image: {{ $tag_prefix }}/app
-    container_name: {{ $tag_prefix }}-queue
+    image: {{ $dockerTagNamespace }}/app
+    container_name: {{ $dockerTagNamespace }}-queue
     restart: unless-stopped
     networks:
-      - {{ $tag_prefix }}-network
+      - {{ $dockerTagNamespace }}-network
     depends_on:
       - app
     volumes:
@@ -108,20 +104,20 @@ services:
 @if($APP_ENV == 'local')
   mailhog:
     image: 'mailhog/mailhog:latest'
-    container_name: {{ $tag_prefix }}-mailhog
+    container_name: {{ $dockerTagNamespace }}-mailhog
     restart: unless-stopped
     ports:
         - "${MAILHOG_PORT:-1025}:1025"
         - "${MAILHOG_DASHBOARD_PORT:-8025}:8025"
     networks:
-        - "{{ $tag_prefix }}-network"
+        - "{{ $dockerTagNamespace }}-network"
 @endif
 
 networks:
-  {{ $tag_prefix }}-network:
+  {{ $dockerTagNamespace }}-network:
     driver: bridge
 volumes:
-  {{ $tag_prefix }}-database:
+  {{ $dockerTagNamespace }}-database:
     driver: local
-  {{ $tag_prefix }}-redis:
+  {{ $dockerTagNamespace }}-redis:
     driver: local
