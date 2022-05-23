@@ -101,7 +101,7 @@ services:
     command: >
         bash -c "echo 'Waiting for jobs..' && php /var/www/html/artisan queue:work --verbose --tries=3 --timeout=90"
         
-@if($APP_ENV == 'local')
+@if($env == 'local')
   mailhog:
     image: 'mailhog/mailhog:latest'
     container_name: {{ $dockerTagNamespace }}-mailhog

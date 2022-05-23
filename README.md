@@ -42,33 +42,33 @@ nightwind init
 This will generate some default template files for running a laravel application in docker with the following services: `php-fpm`, `nginx`, `redis` & `mysql`.
 
 #### Customize Initial Variables:
-
-You should then customize the values of `.nightwind/variables.json` to your liking or to your environment's requirements:
+Before you move on to starting your docker services, you should then customize the values of `.nightwind/variables.json` to your liking or to your environment's requirements & add custom variables:
 
 ```js
 {
+    "env": "local", // your apps environment
     "domain": "app.test", // the domain/hostname of your app, should be changed to reflect env domain.
-    "db_host_port": 3306,
-    "redis_host_port": 6379,
+    "db_host_port": 3306, // the port your machine should use for mysql
+    "redis_host_port": 6379, // the port your machine should use for redis
     "docker_user_uid": 1000,  // the linux user uid for the application dockerfile
     "docker_php_version": 8.1, // the php version for the application dockerfile
-    "nginx_host_http_port": 80,
-    "nginx_host_https_port": 443,
+    "nginx_host_http_port": 80, // the port your machine should use for nginx http traffic
+    "nginx_host_https_port": 443, // the port your machine should use for nginx https traffic
     "docker_username": "nightwind", // the linux username for the application dockerfile 
-    "docker_tag_namespace": "nightwind" // tag namespace to use for tagging/naming docker resources
-
+    "docker_tag_namespace": "nightwind" // tag namespace to use for tagging/naming docker resources, e.g image tag : <namespace>/web-server.
 }
 ```
 
-You should also add any custom variable data you plan to reference here. Naming convention can be whatever but variable reference should be camel case. See template data section for more.
+**Note** - Key naming convention can be whatever format you prefer, but variable reference should be camel case. See template data section for more.
+#### Customize Templates
 
-**Note** - When updating or changing this file, if you have existing containers, you should remove/prune them before restarting services.
+At this point, you can optionally review the `.nightwind/templates` files and tweak to your liking/needs.
 
+
+### Start Docker Services
+#### Render Templates
 
 <!-- 
-### Start Services
-
-#### Templates
 
 Before starting project services, you will want to render your files from your available `.nightwind/templates` files for your docker setup to use. This can be done
 with the `nightwind render` command. This will create a small docker image `nightwind/renderer` and run a small script to generate your available

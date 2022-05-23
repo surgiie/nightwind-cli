@@ -1,4 +1,5 @@
 {
+    "env": "local",
     "domain": "app.test",
     "db_host_port": 3306,
     "redis_host_port": 6379,

@@ -21,11 +21,11 @@ filter_is_laravel_directory(){
     fi
 }
 
-## check that variables.yaml file is present.
+## check that variables.json file is present.
 filter_requires_variables(){
-    if [ ! -f ".nightwind/variables.yaml" ]
+    if [ ! -f ".nightwind/variables.json" ]
     then 
-        echo "$(red  Command requires the .nightwind/templates/variables.yaml file to perform task\(s\). Did you run \`nightwind init\`?)"
+        echo "$(red  Command requires the .nightwind/variables.json file to perform task\(s\). Did you run \`nightwind init\`?)"
     fi
 }
 
