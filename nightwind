@@ -582,10 +582,10 @@ filter_is_laravel_directory(){
 }
 
 filter_requires_variables(){
-    if [ ! -f ".nightwind/variables.yaml" ]
+    if [ ! -f ".nightwind/variables.json" ]
     then
 
-        echo "$(red  Command requires the .nightwind/templates/variables.yaml file to perform task\(s\). Did you run \`nightwind init\`?)"
+        echo "$(red  Command requires the .nightwind/variables.json file to perform task\(s\). Did you run \`nightwind init\`?)"
     fi
 }
 
@@ -606,9 +606,17 @@ make_file(){
     file=$1
     contents=$3
     force=$4
+
+    if [[ $force != "1" ]] && [[ -f "$file" ]];
+
+    then
+        yellow "WARN: File $file already exists."
+    fi
+
     if [[ $force == "1" || ! -f "$file" ]];
 
     then
+        cyan "INFO: Saved file $file."
         echo "$contents" > $file
     fi
 }
@@ -689,28 +697,6 @@ build_project_images(){
     fi
 }
 
-# src/lib/yaml.sh
-yaml_load() {
-   local prefix=$2
-   local s='[[:space:]]*' w='[a-zA-Z0-9_]*'
-   local fs
-
-   fs=$(echo @|tr @ '\034')
-
-   sed -ne "s|^\($s\):|\1|" \
-        -e "s|^\($s\)\($w\)$s:${s}[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  "$1" |
-   awk -F"$fs" '{
-      indent = length($1)/2;
-      vname[indent] = $2;
-      for (i in vname) {if (i > indent) {delete vname[i]}}
-      if (length($3) > 0) {
-         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-         printf("%s%s%s=\"%s\"\n", "'"$prefix"'",vn, $2, $3);
-      }
-   }'
-}
-
 # :command.command_functions
 # :command.function
 nightwind_init_command() {
@@ -722,8 +708,6 @@ nightwind_init_command() {
 
   mkdir -p ".nightwind"
 
-  current_dir=$(pwd)
-
   make_stub(){
       file=$1
       relative_path="${file##*stubs/}"
@@ -734,7 +718,7 @@ nightwind_init_command() {
       make_file $destination_path ".nightwind/$stub_type/$relative_path" "$(cat $file)" ${args[--force]}
   }
 
-  for template in $(find $(get_cli_path)/stubs -type f ! -name variables.yaml.blade);
+  for template in $(find $(get_cli_path)/stubs -type f);
 
   do
 
@@ -808,11 +792,8 @@ nightwind_render_command() {
       make_file $destination_path "$HOME/.nightwind/renderer/$relative_path" "$(cat $file)" ${args[--force]} > /dev/null 2>&1
   done
 
-  # ensure this file is executable.
-  chmod +x $HOME/.nightwind/renderer/render
-
   docker run --rm --user $(id -u):$(id -g) \
-      --volume "$HOME/.nightwind/renderer:/renderer" \
+      --volume "$(get_cli_path)/src/renderer:/renderer" \
       --volume "$PWD:/app" \
       --workdir /renderer \
       nightwind/renderer
@@ -829,10 +810,6 @@ nightwind_up_command() {
   #!/bin/bash
 
   # Startup project docker compose services from vailable docker compose yaml files.
-
-  variables_file=".nightwind/variables.yaml"
-  eval $(yaml_load $variables_file)
-
   if [[ ${args[--force]} == '1' ]] || confirm "Are rendered files to your liking? [y|Y]";
   then
       run_hook "before_up"
@@ -1086,19 +1063,10 @@ parse_requirements() {
     ;;
 
   # :command.command_fallback
-  "" )
+  * )
     nightwind_usage
     exit 1
     ;;
-
-  * )
-    if [[ -x "$(command -v "nightwind-$action")" ]]; then
-      shift
-      exec "nightwind-$action" "$@"
-    else
-      nightwind_usage
-      exit 1
-    fi
 
   esac
   # :command.parse_requirements_while
@@ -1911,7 +1879,7 @@ nightwind_nuke_parse_requirements() {
 
 # :command.initialize
 initialize() {
-  version="v0.0.1"
+  version="v1.0.0"
   long_usage=''
   set -e
 

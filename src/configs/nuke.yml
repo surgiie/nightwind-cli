@@ -1,5 +1,5 @@
 name: nuke
-short: n
+alias: n
 help: Nuke all project docker compose services & volumes.
 catch_all: true
 filename: commands/nuke

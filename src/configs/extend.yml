@@ -1,5 +1,5 @@
 name: extend
-short: ext
+alias: ext
 help: Extend nightwind cli from your bashly yaml files contained in .nightwind/commands.
 filename: commands/extend
 dependencies:

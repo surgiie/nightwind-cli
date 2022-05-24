@@ -1,10 +1,6 @@
 #!/bin/bash
 
 # Startup project docker compose services from vailable docker compose yaml files.
-
-variables_file=".nightwind/variables.yaml"
-eval $(yaml_load $variables_file)
-
 if [[ ${args[--force]} == '1' ]] || confirm "Are rendered files to your liking? [y|Y]";
 then
     run_hook "before_up"

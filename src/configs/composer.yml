@@ -1,5 +1,5 @@
 name: composer
-short: c
+alias: c
 help: Proxy a composer command to the app service container.
 catch_all: true
 filename: commands/composer

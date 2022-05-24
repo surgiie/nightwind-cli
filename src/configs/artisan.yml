@@ -1,5 +1,5 @@
 name: artisan
-short: a
+alias: a
 help: Proxy a artisan command to the app service container.
 catch_all: true
 filename: commands/artisan

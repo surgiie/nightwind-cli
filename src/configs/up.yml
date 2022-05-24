@@ -1,5 +1,5 @@
 name: up
-short: u
+alias: u
 help: Start docker compose services.
 catch_all: true
 filename: commands/up

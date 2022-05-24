@@ -1,5 +1,5 @@
 name: init
-short: i
+alias: i
 help: Initialize project .nightwind directory & template files.
 filename: commands/init
 filters:

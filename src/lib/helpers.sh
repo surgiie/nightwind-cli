@@ -7,8 +7,15 @@ make_file(){
     file=$1
     contents=$3
     force=$4
+
+    if [[ $force != "1" ]] && [[ -f "$file" ]]; 
+    then
+        yellow "WARN: File $file already exists."
+    fi
+
     if [[ $force == "1" || ! -f "$file" ]]; 
     then
+        cyan "INFO: Saved file $file."
         echo "$contents" > $file
     fi
 }

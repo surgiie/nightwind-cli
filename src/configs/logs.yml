@@ -1,5 +1,5 @@
 name: logs
-short: l
+alias: l
 help: Tail a project container logs.
 catch_all: true
 filename: commands/logs

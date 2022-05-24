@@ -1,5 +1,5 @@
 name: render
-short: r
+alias: r
 help: Render the project's .nightwind template files.
 filename: commands/render
 filters:

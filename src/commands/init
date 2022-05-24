@@ -5,8 +5,6 @@ domain=${args[--domain]}
 
 mkdir -p ".nightwind"
 
-current_dir=$(pwd)
-
 make_stub(){
     file=$1
     relative_path="${file##*stubs/}" 
@@ -16,7 +14,7 @@ make_stub(){
 }
 
 ## generate stubs directory/files except variables.yml as thats's been handled explictly above.
-for template in $(find $(get_cli_path)/stubs -type f ! -name variables.yaml.blade); 
+for template in $(find $(get_cli_path)/stubs -type f); 
 do 
     make_stub $template
 done

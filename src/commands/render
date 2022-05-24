@@ -21,12 +21,8 @@ do
     make_file $destination_path "$HOME/.nightwind/renderer/$relative_path" "$(cat $file)" ${args[--force]} > /dev/null 2>&1
 done
 
-
-# ensure this file is executable.
-chmod +x $HOME/.nightwind/renderer/render
-
 docker run --rm --user $(id -u):$(id -g) \
-    --volume "$HOME/.nightwind/renderer:/renderer" \
+    --volume "$(get_cli_path)/src/renderer:/renderer" \
     --volume "$PWD:/app" \
     --workdir /renderer \
     nightwind/renderer

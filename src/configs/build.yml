@@ -1,5 +1,5 @@
 name: build
-short: b
+alias: b
 help: Build docker image(s) in .nightwind/dockerfiles.
 catch_all: true
 filename: commands/build

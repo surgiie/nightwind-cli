@@ -1,5 +1,5 @@
 name: exec
-short: e
+alias: e
 filename: commands/exec
 help: Exec a command on a container.
 catch_all: true
