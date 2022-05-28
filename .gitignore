@@ -1,2 +1,4 @@
 src/commands/custom
+src/renderer/.project
+**/vendor
 composer.lock

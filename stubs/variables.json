@@ -8,5 +8,6 @@
     "nginx_host_http_port": 80,
     "nginx_host_https_port": 443,
     "docker_username": "nightwind",
-    "docker_tag_prefix": "nightwind"
+    "docker_tag_prefix": "nightwind",
+    "docker_ssl_directory": "/var/www/ssl"
 }

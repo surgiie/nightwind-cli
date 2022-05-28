@@ -1,22 +1,21 @@
 #!/bin/bash
 
 # Initialize project .nightwind folder.
+set -e
+
 domain=${args[--domain]}
 
 mkdir -p ".nightwind"
 
-make_stub(){
-    file=$1
+## generate stubs directory/files.
+for file in $(find $(get_cli_path)/stubs -type f); 
+do 
     relative_path="${file##*stubs/}" 
     destination_path=".nightwind/$relative_path" 
-    mkdir -p "$(dirname $destination_path)" ## ensure parent directory exists
-    make_file $destination_path ".nightwind/$stub_type/$relative_path" "$(cat $file)" ${args[--force]}
-}
 
-## generate stubs directory/files except variables.yml as thats's been handled explictly above.
-for template in $(find $(get_cli_path)/stubs -type f); 
-do 
-    make_stub $template
+    mkdir -p "$(dirname $destination_path)" ## ensure parent directory exists
+    
+    write_file $destination_path ".nightwind/$stub_type/$relative_path" "$(cat $file)" ${args[--force]}
 done
 
 # create a .gitignore to ignore rendered files
@@ -26,3 +25,5 @@ then
 fi
 
 lightgreen "Initialized .nightwind directory & files."
+
+set +e

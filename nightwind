@@ -602,7 +602,7 @@ get_cli_path(){
     echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 }
 
-make_file(){
+write_file(){
     file=$1
     contents=$3
     force=$4
@@ -704,25 +704,23 @@ nightwind_init_command() {
   #!/bin/bash
 
   # Initialize project .nightwind folder.
+  set -e
+
   domain=${args[--domain]}
 
   mkdir -p ".nightwind"
 
-  make_stub(){
-      file=$1
+  for file in $(find $(get_cli_path)/stubs -type f);
+
+  do
+
       relative_path="${file##*stubs/}"
 
       destination_path=".nightwind/$relative_path"
 
       mkdir -p "$(dirname $destination_path)" ## ensure parent directory exists
-      make_file $destination_path ".nightwind/$stub_type/$relative_path" "$(cat $file)" ${args[--force]}
-  }
 
-  for template in $(find $(get_cli_path)/stubs -type f);
-
-  do
-
-      make_stub $template
+      write_file $destination_path ".nightwind/$stub_type/$relative_path" "$(cat $file)" ${args[--force]}
   done
 
   # create a .gitignore to ignore rendered files
@@ -733,6 +731,8 @@ nightwind_init_command() {
   fi
 
   lightgreen "Initialized .nightwind directory & files."
+
+  set +e
 }
 
 # :command.function
@@ -777,25 +777,13 @@ nightwind_render_command() {
       cd -
   fi
 
-  mkdir -p "$HOME/.nightwind/renderer"
-
-  for file in $(find $(get_cli_path)/src/renderer -type f );
-
-  do
-
-      nightwind_base_path="$HOME/.nightwind/renderer"
-      relative_path="${file##*/renderer/}"
-
-      destination_path="$HOME/.nightwind/renderer/$relative_path"
-
-      mkdir -p "$(dirname $destination_path)" ## ensure parent directory exists
-      make_file $destination_path "$HOME/.nightwind/renderer/$relative_path" "$(cat $file)" ${args[--force]} > /dev/null 2>&1
-  done
+  rm -rf $(get_cli_path)/src/renderer/.project
+  cp -R $PWD/.nightwind $(get_cli_path)/src/renderer/.project
 
   docker run --rm --user $(id -u):$(id -g) \
-      --volume "$(get_cli_path)/src/renderer:/renderer" \
-      --volume "$PWD:/app" \
-      --workdir /renderer \
+      --volume "$(get_cli_path)/src/renderer:/app" \
+      --volume "$PWD/.nightwind/rendered:/app/.project/.rendered" \
+      --workdir /app \
       nightwind/renderer
 
   if [[ ${args[--remove]} == '1' ]];

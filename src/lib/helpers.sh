@@ -3,7 +3,7 @@ get_cli_path(){
     echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 }
 
-make_file(){
+write_file(){
     file=$1
     contents=$3
     force=$4
