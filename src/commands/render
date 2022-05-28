@@ -9,12 +9,12 @@ then
     cd -
 fi
 
-rm -rf $(get_cli_path)/src/renderer/.project
-cp -R $PWD/.nightwind $(get_cli_path)/src/renderer/.project
+rm -rf $(get_cli_path)/src/renderer/.project-nightwind
+cp -R $PWD/.nightwind $(get_cli_path)/src/renderer/.project-nightwind
 
 docker run --rm --user $(id -u):$(id -g) \
     --volume "$(get_cli_path)/src/renderer:/app" \
-    --volume "$PWD/.nightwind/rendered:/app/.project/.rendered" \
+    --volume "$PWD/.nightwind/rendered:/app/.project-nightwind/.rendered" \
     --workdir /app \
     nightwind/renderer 
 

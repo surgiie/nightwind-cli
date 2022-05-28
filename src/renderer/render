@@ -12,23 +12,39 @@ require_once 'vendor/autoload.php';
 
 
 use BladeCLI\Blade;
+use Illuminate\Support\Str;
 use Illuminate\Container\Container;
 use Symfony\Component\Finder\Finder;
 use Illuminate\Filesystem\Filesystem;
+use BladeCLI\Support\Concerns\LoadsJsonFiles;
 
 $options = ['save-directory'=>'/app/.project/.rendered'];
 
 $finder = new Finder;
 $files = $finder->in(__DIR__."/.project/templates")->files();
 
-foreach($files as $file){
-    // $blade = new Blade(
-    //     container: new Container,
-    //     filesystem: new Filesystem,
-    //     filePath: $file->getPathName(),
-    //     options: $options
-    // );
+class JsonFileLoader {
+    use LoadsJsonFiles;
+}
 
-    // $blade->render();
+$jsonVariableFile = '/app/.project/variables.json';
+$variables = file_exists($jsonVariableFile) ? (new JsonFileLoader)->loadJsonFile($jsonVariableFile) : [];
+
+$data = [];
+foreach($variables as $k=>$v){
+    $data[Str::camel($k)] = $v;
+}
+
+dd($data);
+
+foreach($files as $file){
+    $blade = new Blade(
+        container: new Container,
+        filesystem: new Filesystem,
+        filePath: $file->getPathName(),
+        options: $options
+    );
+
+    $blade->render($variables);
 }
 

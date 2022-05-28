@@ -22,17 +22,19 @@ then
     nighwind artisan key:generate
 fi
 
-# customize as needed:
+docker_tag_prefix=$(grep -o '"dockerTagPrefix": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$')
 
-# mysql might not be ready to accept connections so make sure it's ready before attempting migrate, check that our health check (defined in yaml file) is healthy.
+# mysql docker containers might not be ready to accept connections so make sure it's ready before attempting migrate,
+# this health check utilizes the health check defined in app.yaml out of the box, customize to liking:
 printf "Waiting for mysql to accept connections \n"; 
-
-while [ $(docker inspect --format "@{{json .State.Health.Status }}" {{$dockerTagPrefix}}-database) != "\"healthy\"" ]; 
+while [ $(docker inspect --format "@{{json .State.Health.Status }}" $docker_tag_prefix-database) != "\"healthy\"" ]; 
 do 
     printf "."; 
     sleep 1; 
 done
+
 echo "\n"
 
+# customize as needed:
 nightwind artisan migrate --seed
 nightwind artisan storage:link

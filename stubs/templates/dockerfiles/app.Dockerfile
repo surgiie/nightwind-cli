@@ -1,4 +1,4 @@
-FROM php:{{ $php_version }}-fpm
+FROM php:{{ $dockerPhpVersion }}-fpm
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -34,16 +34,16 @@ RUN curl -sL https://deb.nodesource.com/setup_17.x | bash - && \
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN groupadd -g {{ $user_uid }} {{ $username }} && useradd -u {{ $user_uid }} -ms /bin/bash -g {{ $username }} {{ $username }}
+RUN groupadd -g {{ $dockerUserUid }} {{ $dockerUsername }} && useradd -u {{ $dockerUserUid }} -ms /bin/bash -g {{ $dockerUsername }} {{ $dockerUsername }}
 
 RUN mkdir -p /usr/local/bin/nightwind/entrypoints
 
 COPY ./.nightwind/rendered/entrypoints/app /usr/local/bin/nightwind/entrypoints/app
 
-RUN chmod ug+x /usr/local/bin/nightwind/entrypoints/app && chown {{ $username }}:{{ $username }} /usr/local/bin/nightwind/entrypoints/app
-COPY --chown={{ $username }}:{{ $username }} ./ /var/www/html
+RUN chmod ug+x /usr/local/bin/nightwind/entrypoints/app && chown {{ $dockerUsername }}:{{ $dockerUsername }} /usr/local/bin/nightwind/entrypoints/app
+COPY --chown={{ $dockerUsername }}:{{ $dockerUsername }} ./ /var/www/html
 
-USER {{ $username }}
+USER {{ $dockerUsername }}
 
 WORKDIR /var/www/html
 

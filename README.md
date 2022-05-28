@@ -59,7 +59,7 @@ Before you move on to starting your docker services, you should then customize t
 }
 ```
 
-**Note** - Key naming convention can be whatever format you prefer, but variable reference should be camel case. See template data section for more.
+
 #### Customize Templates
 
 At this point, you can optionally review the `.nightwind/templates` files and tweak to your liking/needs.
