@@ -12,4 +12,3 @@ commands:
  - import: src/configs/artisan.yml
  - import: src/configs/composer.yml
  - import: src/configs/nuke.yml
-#  - import: src/configs/extend.yml

@@ -5,6 +5,14 @@ filter_docker_running() {
   docker info > /dev/null 2>&1 || echo "$(red DependencyError:) $(bold Docker is not running.)"
 }
 
+## check that .nightwind folder is initialized
+filter_is_initialized(){
+    if [ ! -d ".nightwind" ] || [ -z "$(ls -A ".nightwind/templates")" ]
+    then
+        echo "$(red This project does not appear to be initialized. Run: \`nightwind init\`)"
+    fi
+}
+
 ## check that .env file is present.
 filter_env_file_required(){
     if [ ! -f ".env" ]

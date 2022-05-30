@@ -41,8 +41,8 @@ nightwind init
 
 This will generate some default template files for running a laravel application in docker with the following services: `php-fpm`, `nginx`, `redis` & `mysql`.
 
-#### Customize Initial Variables:
-Before you move on to starting your docker services, you should then customize the values of `.nightwind/variables.json` to your liking or to your environment's requirements & add custom variables:
+#### Customize Initial/Base Variables:
+Before you move on to starting your docker services, you should then customize the values of `.nightwind/variables.json` to your liking or to your environment's requirements:
 
 ```js
 {
@@ -55,69 +55,52 @@ Before you move on to starting your docker services, you should then customize t
     "nginx_host_http_port": 80, // the port your machine should use for nginx http traffic
     "nginx_host_https_port": 443, // the port your machine should use for nginx https traffic
     "docker_username": "nightwind", // the linux username for the application dockerfile 
-    "docker_tag_namespace": "nightwind" // tag namespace to use for tagging/naming docker resources, e.g image tag : <namespace>/web-server.
+    "docker_tag_namespace": "nightwind" // tag namespace/prefix to use for tagging/naming docker resources, e.g image tag : <namespace>/web-server.
+    "docker_ssl_directory": "/var/www/ssl" // the directory for local self signed certs or your project's ssl in docker container.    
 }
 ```
+You may add any custom variables as well, this file along with your `.env` will get converted to camel cased variable data when you run `nightwind render`. 
 
+See render templates/template data section below for more.
 
 #### Customize Templates
 
-At this point, you can optionally review the `.nightwind/templates` files and tweak to your liking/needs.
+At this point, you can optionally review the `.nightwind/templates` files and tweak to your liking/needs. Make sure variables are referenced in camel case, match your needs, etc.
 
 
-### Start Docker Services
-#### Render Templates
+### Rendering Templates
 
-<!-- 
+Before starting your project docker services, you templates must be rendered.
 
-Before starting project services, you will want to render your files from your available `.nightwind/templates` files for your docker setup to use. This can be done
-with the `nightwind render` command. This will create a small docker image `nightwind/renderer` and run a small script to generate your available
-`.nightwind/templates` files in `.nightwind/rendered`. You may add any files here as needed with the filename in the following format: `your-filename.<extension>.blade`.
+To render templates, run `nightwind render`, before running review your variable data as documented below:
 
-At this point, review `.nightwind/rendered` files and be sure you are happy with your rendered setup, otherwise customize templates and re-render.
+##### Template File Variable Data
 
-##### Template Data
+There are 3 options for variable data:
 
-To edit the template data for your templates, add key/value pairs to your `.nightwind/variables.yaml` file.
+1. Your `.nightwind/variables.json` file acts as the base variable data.
+2. Your project's `.env` file which takes precedence  over your `variables.json` file.
+3. Command line options when running `nightwind render`. Example: `nightwind render --app-env=production`
 
-These key value pairs will used during rendering for variables. In addition to this file, your project's `.env` file is also used for variable data.
 
-As an example,`{{ $APP_ENV }}` can be used wihout having to duplicate your application's env value in both the `.env` and the `.nightwind/variables.yaml`.
+*NOTE* - Since command line options are often passed as kebab case and php does not support kebab cased variables, e.g `$app-env`, all variable data is converted to camel case. Therefore, if you define a variable in your `variables.json` or `.env` file as snake or kebab case, you will need to reference it as camel case in your template files.
 
-See [Blade](https://laravel.com/docs/9.x/blade) for docs on templating specific syntax/features.
 
-### Template Partials/Includes
+### Up & Running
 
-You may use the `@include` directive to include partial files, however as a heads up, a `@include` directive will include the content of the file as is,
-so all formatting of that file will be preserved and you should structure those files accordingly if you are including the them in files
-that have formatting/semantical requirements. For example
+At this point, it is assumed your template files and `variables.json|.env` are to your liking or fit your env needs and you have rendered your template files
+it is a good idea to review your rendered files to make sure it has rendered to your expectations, and that your env/connection
+settings match your docker setup. When ready, you may start up services with:
 
-This include file (template-example.yaml):
-
-```yaml
-    something: foo
-       foo: bar
+```bash
+# if ready to start up project otherwise review templates and make changes as needed before running:
+nightwind up
 ```
 
-used in this manner:
 
-```yaml
-name: Bob
-@include('template-example.yaml') # this will embedd the content of the file as is so if you have tabs and specific formatting, it will be preserved
-```
+**NOTE** You may add extra post start up commands via the `.nightwind/hooks/after_up` hook.
 
-Would result in a rendered file in this structure:
-
-```
-name: Bob
-    something: foo
-        foo: bar
-
-```
-
-#### Local Setup
-
-If in local env, remember to configure hosts for local testing by adding an entry to your hosts file for local testing:
+At this point, your docker services should be up and running, if you are in a local env, configure your hosts for local testing by adding an entry to your hosts file for local testing:
 
 ```
 127.0.0.1 app.test # use your local domain if you provided one during `nightwind init`.
@@ -127,54 +110,12 @@ If in local env, remember to configure hosts for local testing by adding an entr
 192.168.1.72 gateway.docker.internal
 ```
 
-### Production Setup
-
-At your discretion to make necessary changes to your templates as out of box templates are designed mostly for a local env, but some general tips:
-
-- Be sure `variables.yaml` are to your liking and match what your production env expects, for example `domain` should be your actual site's domain.
-- Make sure your templates contain any production specific needs as well.
-
-### Up & Running
-
-At this point, it is assumed your template files and `variables.yaml` are to your liking or fit your env needs and you have rendered your template files
-, it is a good idea to review your rendered files to make sure it has rendered to your expectations, and that your env/connection
-settings match your docker setup. When ready, you may start up services with:
-
-```bash
-# if ready to start up project otherwise review templates and make changes as needed before running:
-nightwind up
-```
-
-Then your usual starting commands:
-
-```
-nightwind composer install
-nightwind artisan migrate
-
-```
-
-_Note_ Your usual starting commands could be done via the `.nightwind/rendered/hooks/after_up` hook, which is what is generated by default by `nightwind init`
-
 ### Help
 
 `nightwind --help`
 
 ### Extending/Custom Commands
 
-`nightwind` is extensible via [Bashly](https://bashly.dannyb.co/configuration/command/) by adding your command yaml files to `~/.nightwind/commands` and
-utilizing symlinks to have bashly include your scripts when rebuilding the cli. As an example, lets add a `myscript`:
-
-1. Create a custom command yaml definition file as documented in bashly docs in `~/.nightwind/commands/myscript`.
-2. This file should contain a custom filename so that bashly generates a file for it in directory you can symlink to. `filename: custom/myscript`
-3. Symlink a directory to this location so you can manage your script files: `ln -s /usr/local/bin/nightwind/src/custom ~/.nightwind/custom`
-4. Run `nightwind extend`
-5. Write the logic for your script in `~/.nightwind/custom/myscript` and re-run `nightwind extend` after making changes.
-6. You should be able to call your `nightwind myscript` command.
-
-**Note:** That this will create a docker image for `bashly` to regnerate the cli in a emphemeral container. You may consider running `docker system prune`
-or remove the image if you are not going to be regenerating the cli often.
-
-**Note** You may also use this method of writing custom commands if you dont wish to use symlinks: [Embed YAML definition alongside bash code](https://bashly.dannyb.co/advanced/split-config/#download-command-sh)
 
 ### Contributing
 
@@ -187,4 +128,5 @@ or remove the image if you are not going to be regenerating the cli often.
 ### Kudos
 
 - Ascii Text For Logo - [https://fsymbols.com/generators/carty/](https://fsymbols.com/generators/carty/)
-- [Bashly](https://bashly.dannyb.co/installation/) for feature rich bash cli generation. -->
+- [Bashly](https://bashly.dannyb.co/installation/) for feature rich bash cli generation.
+

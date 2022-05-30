@@ -3,20 +3,28 @@
 
 if [[ "$(docker images -q nightwind/renderer 2>/dev/null)" == "" ]] || [[ ${args[--rebuild]} == '1' ]]; 
 then
-    cd "$(get_cli_path)"
+    cd "$(get_cli_path)/src/renderer"
     yellow "Building docker image for nightwind/renderer."
-    docker build . -f renderer.Dockerfile -t nightwind/renderer
+    docker build -t nightwind/renderer --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) .
     cd -
 fi
 
-rm -rf $(get_cli_path)/src/renderer/.project-nightwind
-cp -R $PWD/.nightwind $(get_cli_path)/src/renderer/.project-nightwind
+rm -rf $(get_cli_path)/src/renderer/.project
+cp -R $PWD/.nightwind $(get_cli_path)/src/renderer/.project
+cp $PWD/.env $(get_cli_path)/src/renderer/.project/.env
 
-docker run --rm --user $(id -u):$(id -g) \
-    --volume "$(get_cli_path)/src/renderer:/app" \
-    --volume "$PWD/.nightwind/rendered:/app/.project-nightwind/.rendered" \
-    --workdir /app \
-    nightwind/renderer 
+# Mounted volume directories get mounted as root, a work around as commented here: https://github.com/moby/moby/issues/2259#issuecomment-26564115
+rm -rf $PWD/.nightwind/rendered
+mkdir -p $PWD/.nightwind/rendered
+chown $(id -u):$(id -g) $PWD/.nightwind/rendered
+
+docker run --rm  \
+    --volume "$(get_cli_path)/src/renderer:/home/nightwind" \
+    --volume "$PWD/.nightwind/rendered:/home/nightwind/.project/rendered" \
+    --workdir /home/nightwind \
+    nightwind/renderer ./entrypoint "${other_args[@]}"
+
+rm -rf $(get_cli_path)/src/renderer/.project
 
 if [[ ${args[--remove]} == '1' ]];
 then

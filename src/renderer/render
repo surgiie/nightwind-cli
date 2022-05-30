@@ -1,50 +1,68 @@
 #!/usr/bin/env php
 <?php
 
-/**
- * ---------------------------------------------------------------------------------------------------
- * This script is part of the nightwind-cli, it is used internally by the `nightwind render` command
- * for generating your `.nightwind/template` rendered files. Changing this file is not recommended
- * unless you have some custom needs not met by the cli natively.
- * ---------------------------------------------------------------------------------------------------
- */
 require_once 'vendor/autoload.php';
 
 
+use Dotenv\Dotenv;
 use BladeCLI\Blade;
 use Illuminate\Support\Str;
+use BladeCLI\Support\OptionsParser;
 use Illuminate\Container\Container;
 use Symfony\Component\Finder\Finder;
 use Illuminate\Filesystem\Filesystem;
 use BladeCLI\Support\Concerns\LoadsJsonFiles;
 
-$options = ['save-directory'=>'/app/.project/.rendered'];
+global $argv;
+// bashly's other_args passes options as "--name value" instead of "--name=value" which is how blade cli parser expects them, format them accordingly.
+$args = implode('=', array_slice($argv, 2));
+$args = str_replace('=--', " --", $args);
+$args = explode(" ", $args);
 
-$finder = new Finder;
-$files = $finder->in(__DIR__."/.project/templates")->files();
-
-class JsonFileLoader {
+// parse variables/template data
+class JsonFileLoader
+{
     use LoadsJsonFiles;
 }
 
-$jsonVariableFile = '/app/.project/variables.json';
-$variables = file_exists($jsonVariableFile) ? (new JsonFileLoader)->loadJsonFile($jsonVariableFile) : [];
-
 $data = [];
-foreach($variables as $k=>$v){
-    $data[Str::camel($k)] = $v;
+$envFile = '/home/nightwind/.project/.env';
+$jsonVariableFile = '/home/nightwind/.project/variables.json';
+
+$envVariables = file_exists($envFile) ? Dotenv::parse(file_get_contents($envFile)) : [];
+$jsonVariables = file_exists($jsonVariableFile) ? (new JsonFileLoader)->loadJsonFile($jsonVariableFile) : [];
+
+$parser = new OptionsParser(array_filter($args));
+
+// normalize variable keys to camel case.
+foreach (array_merge($jsonVariables, $envVariables, $parser->parse(mode: OptionsParser::VALUE_MODE)) as $k => $v) {
+    $k = Str::camel(Str::snake(strtolower($k)));
+    $data[$k] = $v;
 }
 
-dd($data);
+// render templates
+$finder = new Finder;
+$files = $finder->in(__DIR__ . "/.project/templates")->files();
 
-foreach($files as $file){
+foreach ($files as $file) {
+    
+    $dir = Str::after($file->getPath(), '.project/');
+    $saveDir =  __DIR__.'/.project/rendered/'. ltrim(str_replace("templates", "", $dir), '/');
+    @mkdir($saveDir, recursive:true);
+
     $blade = new Blade(
         container: new Container,
         filesystem: new Filesystem,
         filePath: $file->getPathName(),
-        options: $options
+        options: [
+            'force' => true,
+            'save-directory' =>$saveDir, 
+        ]
     );
 
-    $blade->render($variables);
-}
+    $blade->render($data);
 
+    $saveLocation = $blade->getSaveLocation();
+
+    echo "Rendered $saveLocation.\n";
+}

@@ -3,6 +3,10 @@ get_cli_path(){
     echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 }
 
+parse_variable_json_value(){
+    echo grep -o '"$1": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$'
+}
+
 write_file(){
     file=$1
     contents=$3
@@ -37,14 +41,14 @@ confirm() {
 
 run_hook(){
     hook="$1"
-    if [ -f ".nightwind/rendered/hooks/$hook" ];
+    if [ -f ".nightwind/hooks/$hook" ];
     then
-        if [[  -x ".nightwind/rendered/hooks/$hook" ]];
+        if [[  -x ".nightwind/hooks/$hook" ]];
         then
             cyan "Running hook [$hook] script:"
-            .nightwind/rendered/hooks/$hook
+            .nightwind/hooks/$hook
         else
-            red "Hook file not executable: .nightwind/rendered/hooks/$hook"
+            red "Hook file not executable: .nightwind/hooks/$hook"
             exit 1;
         fi
     fi

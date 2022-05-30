@@ -180,7 +180,7 @@ nightwind_render_usage() {
   echo
 
   printf "Usage:\n"
-  printf "  nightwind render [options]\n"
+  printf "  nightwind render [options] [...]\n"
   printf "  nightwind render --help | -h\n"
   echo
 
@@ -565,6 +565,13 @@ filter_docker_running() {
   docker info > /dev/null 2>&1 || echo "$(red DependencyError:) $(bold Docker is not running.)"
 }
 
+filter_is_initialized(){
+    if [ ! -d ".nightwind" ] || [ -z "$(ls -A ".nightwind/templates")" ]
+    then
+        echo "$(red This project does not appear to be initialized. Run: \`nightwind init\`)"
+    fi
+}
+
 filter_env_file_required(){
     if [ ! -f ".env" ]
     then
@@ -600,6 +607,10 @@ filter_requires_rendered_files(){
 #!/bin/bash
 get_cli_path(){
     echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+}
+
+parse_variable_json_value(){
+    echo grep -o '"$1": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$'
 }
 
 write_file(){
@@ -638,14 +649,14 @@ confirm() {
 
 run_hook(){
     hook="$1"
-    if [ -f ".nightwind/rendered/hooks/$hook" ];
+    if [ -f ".nightwind/hooks/$hook" ];
     then
-        if [[  -x ".nightwind/rendered/hooks/$hook" ]];
+        if [[  -x ".nightwind/hooks/$hook" ]];
         then
             cyan "Running hook [$hook] script:"
-            .nightwind/rendered/hooks/$hook
+            .nightwind/hooks/$hook
         else
-            red "Hook file not executable: .nightwind/rendered/hooks/$hook"
+            red "Hook file not executable: .nightwind/hooks/$hook"
             exit 1;
         fi
     fi
@@ -771,20 +782,28 @@ nightwind_render_command() {
   if [[ "$(docker images -q nightwind/renderer 2>/dev/null)" == "" ]] || [[ ${args[--rebuild]} == '1' ]];
 
   then
-      cd "$(get_cli_path)"
+      cd "$(get_cli_path)/src/renderer"
       yellow "Building docker image for nightwind/renderer."
-      docker build . -f renderer.Dockerfile -t nightwind/renderer
+      docker build -t nightwind/renderer  --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) .
       cd -
   fi
 
-  rm -rf $(get_cli_path)/src/renderer/.project-nightwind
-  cp -R $PWD/.nightwind $(get_cli_path)/src/renderer/.project-nightwind
+  rm -rf $(get_cli_path)/src/renderer/.project
+  cp -R $PWD/.nightwind $(get_cli_path)/src/renderer/.project
+  cp $PWD/.env $(get_cli_path)/src/renderer/.project/.env
 
-  docker run --rm --user $(id -u):$(id -g) \
-      --volume "$(get_cli_path)/src/renderer:/app" \
-      --volume "$PWD/.nightwind/rendered:/app/.project-nightwind/.rendered" \
-      --workdir /app \
-      nightwind/renderer
+  # https://github.com/moby/moby/issues/2259#issuecomment-26564115
+  rm -rf $PWD/.nightwind/rendered
+  mkdir -p $PWD/.nightwind/rendered
+  chown $(id -u):$(id -g) $PWD/.nightwind/rendered
+
+  docker run --rm  \
+      --volume "$(get_cli_path)/src/renderer:/home/nightwind" \
+      --volume "$PWD/.nightwind/rendered:/home/nightwind/.project/rendered" \
+      --workdir /home/nightwind \
+      nightwind/renderer ./entrypoint "${other_args[@]}"
+
+  rm -rf $(get_cli_path)/src/renderer/.project
 
   if [[ ${args[--remove]} == '1' ]];
   then
@@ -1265,15 +1284,15 @@ nightwind_render_parse_requirements() {
       ;;
 
     -?* )
-      printf "invalid option: %s\n" "$key"
-      exit 1
+      other_args+=("$1")
+      shift
       ;;
 
     * )
       # :command.parse_requirements_case
-      # :command.parse_requirements_case_simple
-      printf "invalid argument: %s\n" "$key"
-      exit 1
+      # :command.parse_requirements_case_catch_all
+      other_args+=("$1")
+      shift
       ;;
 
     esac
@@ -1290,7 +1309,7 @@ nightwind_render_parse_requirements() {
     exit 1
   fi
 
-  filter_error=$(filter_env_file_required)
+  filter_error=$(filter_is_initialized)
   if [[ -n $filter_error ]]; then
     echo "$filter_error"
     exit 1

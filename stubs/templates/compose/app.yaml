@@ -10,7 +10,7 @@ services:
       COMPOSER_MEMORY_LIMIT: -1
     volumes:
       - ../../../:/var/www/html
-      - ../web-server/ssl:{{ $ssl_directory }}
+      - ../nginx/ssl:{{ $dockerSslDirectory }}
       - ../php.ini:/usr/local/etc/php/conf.d/php-{{ $dockerTagNamespace }}.ini
       - ../php-fpm.conf:/usr/local/etc/php-fpm.d/www.conf
     networks:
@@ -29,9 +29,9 @@ services:
       - "{{ $nginxHostHttpsPort }}:443"
     volumes:
       - ../../../:/var/www/html
-      - ../web-server/conf.d:/etc/nginx/conf.d
-      - ../web-server/nginx.conf:/etc/nginx/nginx.conf
-      - ../web-server/ssl:{{ $ssl_directory }}
+      - ../nginx/conf.d:/etc/nginx/conf.d
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../nginx/ssl:{{ $dockerSslDirectory }}
     networks:
       - {{ $dockerTagNamespace }}-network
   cache:
@@ -101,7 +101,7 @@ services:
     command: >
         bash -c "echo 'Waiting for jobs..' && php /var/www/html/artisan queue:work --verbose --tries=3 --timeout=90"
         
-@if($env == 'local')
+@if($appEnv == 'local')
   mailhog:
     image: 'mailhog/mailhog:latest'
     container_name: {{ $dockerTagNamespace }}-mailhog

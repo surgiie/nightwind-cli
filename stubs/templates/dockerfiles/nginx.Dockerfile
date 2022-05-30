@@ -16,7 +16,7 @@ RUN chown -R {{ $dockerUsername }}:{{ $dockerUsername }} /var/www/html && chmod 
 RUN touch /var/run/nginx.pid && \
         chown -R {{ $dockerUsername }}:{{ $dockerUsername }} /var/run/nginx.pid
 
-COPY ./.nightwind/rendered/entrypoints/web-server /usr/local/bin/nightwind/entrypoints/nginx
+COPY ./.nightwind/rendered/entrypoints/nginx /usr/local/bin/nightwind/entrypoints/nginx
 RUN chmod ug+x /usr/local/bin/nightwind/entrypoints/nginx && chown {{ $dockerUsername }}:{{ $dockerUsername }} /usr/local/bin/nightwind/entrypoints/nginx
 
 USER {{ $dockerUsername }}
