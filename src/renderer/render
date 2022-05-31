@@ -3,15 +3,8 @@
 
 require_once 'vendor/autoload.php';
 
-
-use Dotenv\Dotenv;
-use BladeCLI\Blade;
-use Illuminate\Support\Str;
-use BladeCLI\Support\OptionsParser;
-use Illuminate\Container\Container;
 use Symfony\Component\Finder\Finder;
-use Illuminate\Filesystem\Filesystem;
-use BladeCLI\Support\Concerns\LoadsJsonFiles;
+use Nightwind\Renderer;
 
 global $argv;
 // bashly's other_args passes options as "--name value" instead of "--name=value" which is how blade cli parser expects them, format them accordingly.
@@ -19,50 +12,22 @@ $args = implode('=', array_slice($argv, 2));
 $args = str_replace('=--', " --", $args);
 $args = explode(" ", $args);
 
-// parse variables/template data
-class JsonFileLoader
-{
-    use LoadsJsonFiles;
-}
+$workingDirectory = '/home/nightwind/.project';
 
-$data = [];
-$envFile = '/home/nightwind/.project/.env';
-$jsonVariableFile = '/home/nightwind/.project/variables.json';
-
-$envVariables = file_exists($envFile) ? Dotenv::parse(file_get_contents($envFile)) : [];
-$jsonVariables = file_exists($jsonVariableFile) ? (new JsonFileLoader)->loadJsonFile($jsonVariableFile) : [];
-
-$parser = new OptionsParser(array_filter($args));
-
-// normalize variable keys to camel case.
-foreach (array_merge($jsonVariables, $envVariables, $parser->parse(mode: OptionsParser::VALUE_MODE)) as $k => $v) {
-    $k = Str::camel(Str::snake(strtolower($k)));
-    $data[$k] = $v;
-}
+$renderer = new Renderer(
+    args: $args,
+    workingDirectory: $workingDirectory,
+);
 
 // render templates
 $finder = new Finder;
-$files = $finder->in(__DIR__ . "/.project/templates")->files();
+$files = $finder->in($workingDirectory."/templates")->files();
 
 foreach ($files as $file) {
-    
-    $dir = Str::after($file->getPath(), '.project/');
-    $saveDir =  __DIR__.'/.project/rendered/'. ltrim(str_replace("templates", "", $dir), '/');
-    @mkdir($saveDir, recursive:true);
-
-    $blade = new Blade(
-        container: new Container,
-        filesystem: new Filesystem,
-        filePath: $file->getPathName(),
-        options: [
-            'force' => true,
-            'save-directory' =>$saveDir, 
-        ]
-    );
-
-    $blade->render($data);
+    $blade = $renderer->render($file);
 
     $saveLocation = $blade->getSaveLocation();
 
-    echo "Rendered $saveLocation.\n";
 }
+
+echo "\nRendered project templates at .nightwind/rendered.\n";

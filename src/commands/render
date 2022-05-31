@@ -9,6 +9,7 @@ then
     cd -
 fi
 
+## copy over project .nightwind directory and .env file to render templates from
 rm -rf $(get_cli_path)/src/renderer/.project
 cp -R $PWD/.nightwind $(get_cli_path)/src/renderer/.project
 cp $PWD/.env $(get_cli_path)/src/renderer/.project/.env
@@ -24,6 +25,7 @@ docker run --rm  \
     --workdir /home/nightwind \
     nightwind/renderer ./entrypoint "${other_args[@]}"
 
+## cleanup
 rm -rf $(get_cli_path)/src/renderer/.project
 
 if [[ ${args[--remove]} == '1' ]];
