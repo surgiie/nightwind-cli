@@ -60,39 +60,36 @@ exec_command(){
     local command="$2"
     local -n other_arguments="$3"
 
-    variables_file=".nightwind/variables.yaml"
-    eval $(yaml_load $variables_file)
+    docker_tag_namespace="$(grep -o '"docker_tag_namespace": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$')"
+
     
-    container="$tag_prefix-${container/$tag_prefix-/''}"
+    container="$docker_tag_namespace-${container/$docker_tag_namespace-/''}"
 
     cyan "Running: docker exec -it "$container" "$command" $other_args"
     docker exec -it "$container" $command $other_args
 }
 
 build_project_images(){
-    local tag_prefix="$1"
-    local target="$2"
-    local -n build_args="$3"
+    local target="$1"
+    local -n build_args="$2"
+    
+    docker_tag_namespace="$(grep -o '"docker_tag_namespace": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$')"
 
     # if no target has been specified, build all available files.
     if [ -z $target ]
     then
-        for dockerfile in $(find ".nightwind/rendered/dockerfiles" -type f -name '*.Dockerfile'); 
-        do
-            filename="${dockerfile##*dockerfiles/}" ## get relative path
-            target="${filename%%.*}"
-            
-            cyan "Running: docker build -t $tag_prefix/$target -f .nightwind/rendered/dockerfiles/$filename . $build_args"
-            docker build -t $tag_prefix/$target -f ".nightwind/rendered/dockerfiles/$filename" . $build_args 
-        done
+        paths="$(find ".nightwind/rendered/dockerfiles" -type f -name '*.Dockerfile')"
     else
-        dockerfile=".nightwind/rendered/dockerfiles/$target.Dockerfile"
-        if [ ! -f $dockerfile ];
-        then
-            red "$target.Dockerfile does not exist in .nightwind/rendered/dockerfiles"
-            exit 1
-        fi
-        cyan "Running: docker build -t $tag_prefix/$target -f $dockerfile . $build_args"
-        docker build -t $tag_prefix/$target -f $dockerfile . $build_args 
+        paths=(".nightwind/rendered/dockerfiles/$target.Dockerfile")
     fi
+
+
+    for dockerfile in $paths; 
+    do
+        filename="${dockerfile##*dockerfiles/}" ## get relative path
+        target="${filename%%.*}"
+        
+        cyan "Running: docker build -t $docker_tag_namespace/$target -f .nightwind/rendered/dockerfiles/$filename . $build_args"
+        docker build -t $docker_tag_namespace/$target -f ".nightwind/rendered/dockerfiles/$filename" . $build_args 
+    done
 }

@@ -10,13 +10,12 @@ then
     exit 1
 fi
 
-variables_file=".nightwind/variables.yaml"
-eval $(yaml_load $variables_file)
+docker_tag_namespace="$(grep -o '"docker_tag_namespace": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$')"
 
-if [ -z $tag_prefix ];
+if [ -z $docker_tag_namespace ];
 then
-    echo "$(red MissingVariableError:) $(bold The tag_prefix yaml variable is required to build images.)"
+    echo "$(red MissingVariableError:) $(bold The docker_tag_namespace json variable is required to build images.)"
     exit 1;
 fi
 
-build_project_images "$tag_prefix" "$target" other_args
+build_project_images "$target" other_args
