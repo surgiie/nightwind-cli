@@ -1,53 +1,56 @@
 #!/bin/bash
 
 # Startup project docker compose services from vailable docker compose yaml files.
-if [[ ${args[--force]} == '1' ]] || confirm "Are rendered files to your liking? [y|Y]";
-then
-    run_hook "before_up"
-    
-    cyan "Checking docker images."
 
-    for dockerfile in $(find ".nightwind/rendered/dockerfiles" -type f -name '*.Dockerfile'); 
-    do
-        target="${dockerfile##*dockerfiles/}" 
-        target=${target%.Dockerfile*}
-        if [[ "$(docker images -q $tag_prefix/$target 2>/dev/null)" == "" ]]; then
-            yellow "WARNING: Docker image $tag_prefix/$target doesnt exist, building."
-            declare -A empty_args=() # required by the build_project_images helper
-            build_project_images "$tag_prefix" "$target" empty_args
-        fi
-    done
+# run_hook "before_up"
 
-    cyan "Checking available compose files."
+cyan "Checking docker images."
 
-    yaml_file_arg="-f .nightwind/rendered/compose/app.yaml"
-    env_yaml_file=".nightwind/rendered/compose/$APP_ENV.env.yaml"
+## loop rendered docker files and build images
+docker_tag_namespace="$(parse_variable_json_value docker_tag_namespace)"
 
-    if [ -f "$env_yaml_file" ]; then
-        path="${env_yaml_file##*.nightwind/}" 
-        yaml_file_arg="${yaml_file_arg} -f $env_yaml_file"
-    fi
+echo "TAG NAMESPACE: $docker_tag_namespace"
+# for dockerfile in $(find ".nightwind/rendered/dockerfiles" -type f -name '*.Dockerfile'); 
+# do
+#     target="${dockerfile##*dockerfiles/}" 
+#     target=${target%.Dockerfile*}
+#     if [[ "$(docker images -q $tag_prefix/$target 2>/dev/null)" == "" ]]; then
+#         yellow "WARNING: Docker image $tag_prefix/$target doesnt exist, building."
+#         declare -A empty_args=() # required by the build_project_images helper
+#         build_project_images "$tag_prefix" "$target" empty_args
+#     fi
 
+# done
 
-    for yaml in $(find ".nightwind/rendered/compose" -type f -name '*.yaml' ! -name app.yaml ! -name $APP_ENV.env.yaml ! -name *.env.yaml); 
-    do
-        path="${yaml##*.nightwind/}" 
-        path=".nightwind/$path"
-        yaml_file_arg="${yaml_file_arg} -f $path"
-        target="${path%%.*}"
-    done
+# cyan "Checking available compose files."
+
+# yaml_file_arg="-f .nightwind/rendered/compose/app.yaml"
+# env_yaml_file=".nightwind/rendered/compose/$APP_ENV.env.yaml"
+
+# if [ -f "$env_yaml_file" ]; then
+#     path="${env_yaml_file##*.nightwind/}" 
+#     yaml_file_arg="${yaml_file_arg} -f $env_yaml_file"
+# fi
 
 
-    cyan "Starting services."
+# for yaml in $(find ".nightwind/rendered/compose" -type f -name '*.yaml' ! -name app.yaml ! -name $APP_ENV.env.yaml ! -name *.env.yaml); 
+# do
+#     path="${yaml##*.nightwind/}" 
+#     path=".nightwind/$path"
+#     yaml_file_arg="${yaml_file_arg} -f $path"
+#     target="${path%%.*}"
+# done
 
-    docker compose $yaml_file_arg up -d $other_args
 
-    # run hook if successful.
-    if [ $? -eq 0 ]; then
-        run_hook "after_up"
-    fi
-    
+# cyan "Starting services."
 
-    lightgreen "Started services!"
-fi
+# docker compose $yaml_file_arg up -d $other_args
+
+# # run hook if successful.
+# if [ $? -eq 0 ]; then
+#     run_hook "after_up"
+# fi
+
+
+# lightgreen "Started services!"
 

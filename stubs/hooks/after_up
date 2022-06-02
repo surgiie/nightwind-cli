@@ -22,7 +22,7 @@ then
     nighwind artisan key:generate
 fi
 
-docker_tag_namespace="$(grep -o '"dockerTagNamespace": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$')"
+docker_tag_namespace="$(grep -o '"docker_tag_namespace": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$')"
 
 # mysql docker containers might not be ready to accept connections so make sure it's ready before attempting migrate,
 # this health check utilizes the health check defined in app.yaml out of the box, customize to liking:

@@ -4,8 +4,9 @@
 # This script is called before `nightwind up` does anything.
 set -e
 
+domain="$(grep -o '"domain": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$')"
 ssl_directory=".nightwind/rendered/web-server/ssl"
-cert_path="$ssl_directory/live/{{$domain}}"
+cert_path="$ssl_directory/live/$domain"
 
 mkdir -p $cert_path
 
@@ -17,13 +18,14 @@ then
     echo "Generated ssl dhparams for nginx conf at: $ssl_directory"
 fi
 
-# local ssl is provided out of box, remove as needed, this allows container startup if a cert doesnt already exist
-if [ ! -f "$cert_path/privkey.pem" ] && [ ! -f "$cert_path/fullchain.pem" ]; then
-    subject='/CN={{$domain}}/C=US/ST=Indiana/L=Indianapolis/O=CollabCorp/OU=Development'
+# local ssl cert to allow container startup if a cert doesnt already exist for the out of box nginx https configuration, remove as needed.
+if [ ! -f "$cert_path/privkey.pem" ] && [ ! -f "$cert_path/fullchain.pem" ]; 
+then
+    subject="/CN=$domain/C=US/ST=Indiana/L=Indianapolis/O=CollabCorp/OU=Development"
     openssl genrsa -out $cert_path/privkey.pem 2048
     openssl req -new -x509 -key $cert_path/privkey.pem -out $cert_path/fullchain.pem \
         -days 3650 -subj "$subject" -extensions SAN -config <( \
-        printf "[req]\ndistinguished_name = req\n[SAN]\nsubjectAltName=DNS:{{$domain}}")
+        printf "[req]\ndistinguished_name = req\n[SAN]\nsubjectAltName=DNS:$domain")
                 
     echo "Generated local ssl cert for container startup."
 fi
