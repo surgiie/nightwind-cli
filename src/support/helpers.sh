@@ -4,7 +4,8 @@ get_cli_path(){
 }
 
 parse_variable_json_value(){
-    echo grep -o '"$1": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$'
+    result="$(grep -o "\"${1}\": \"[^\"]*" .nightwind/variables.json | grep -o '[^"]*$')"
+    echo $result
 }
 
 write_file(){
@@ -60,7 +61,7 @@ exec_command(){
     local command="$2"
     local -n other_arguments="$3"
 
-    docker_tag_namespace="$(grep -o '"docker_tag_namespace": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$')"
+    docker_tag_namespace="$(parse_variable_json_value docker_tag_namespace)"
 
     
     container="$docker_tag_namespace-${container/$docker_tag_namespace-/''}"
@@ -73,7 +74,7 @@ build_project_images(){
     local target="$1"
     local -n build_args="$2"
     
-    docker_tag_namespace="$(grep -o '"docker_tag_namespace": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$')"
+    docker_tag_namespace="$(parse_variable_json_value docker_tag_namespace)"
 
     # if no target has been specified, build all available files.
     if [ -z $target ]

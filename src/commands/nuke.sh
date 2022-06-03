@@ -1,6 +1,21 @@
+
+name: nuke
+alias: n
+help: Nuke all project docker compose services & volumes.
+catch_all: true
+filename: commands/nuke.sh
+filters:
+  - is_laravel_directory
+  - docker_running
+  - env_file_required
+  - requires_rendered_files
+dependencies:
+  - docker
+  - find
+---
 #!/bin/bash
 
-# Nuke docker services associated with project.
+set -e
 
 if [ ! -d ".nightwind/rendered/compose" ] || [ -z "$(ls -A ".nightwind/rendered/compose")" ]; then
    echo "$(red .nightwind/rendered/compose doesnt exist or is empty, nothing to nuke.)"
@@ -36,3 +51,4 @@ then
 
     lightgreen "Stopped and removed project docker resources."
 fi
+set +e

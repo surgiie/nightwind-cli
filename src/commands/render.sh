@@ -1,5 +1,23 @@
-
+name: render
+alias: r
+help: Render the project .nightwind template files.
+filename: commands/render.sh
+catch_all: true
+filters:
+  - is_laravel_directory
+  - is_initialized
+  - requires_variables
+dependencies:
+  - find
+flags:
+- long: --rebuild
+  help: Rebuild the nightwind/renderer image.
+- long: --remove
+  help: Remove the nightwind/renderer image when done.
+---
 #!/bin/bash
+set -e
+
 
 if [[ "$(docker images -q nightwind/renderer 2>/dev/null)" == "" ]] || [[ ${args[--rebuild]} == '1' ]]; 
 then
@@ -32,3 +50,5 @@ if [[ ${args[--remove]} == '1' ]];
 then
     docker image rm nightwind/renderer
 fi
+
+set +e

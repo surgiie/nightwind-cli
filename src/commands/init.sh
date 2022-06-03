@@ -1,3 +1,18 @@
+name: init
+alias: i
+help: Initialize project .nightwind directory & template files.
+filename: commands/init.sh
+filters:
+  - is_laravel_directory
+  - env_file_required
+flags:
+- long: --force
+  help: Overwrite existing files.
+dependencies:
+  - find
+  - sed
+
+---
 #!/bin/bash
 
 # Initialize project .nightwind folder.

@@ -1,2 +1,0 @@
-# Exec a command on a project container.
-exec_command ${args[container]} ${args[command]} other_args

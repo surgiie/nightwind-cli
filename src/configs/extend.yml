@@ -1,8 +1,0 @@
-name: extend
-alias: ext
-help: Extend nightwind cli from your bashly yaml files contained in .nightwind/commands.
-filename: commands/extend
-dependencies:
-  - docker
-filters:
-  - is_laravel_directory

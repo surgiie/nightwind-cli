@@ -5,8 +5,8 @@ while read -r filename event; do
     # https://stackoverflow.com/questions/28195821/how-can-i-interrupt-or-debounce-an-inotifywait-loop
     jobs -p | xargs kill -9 2>/dev/null
     (
-        docker run --rm --user $(id -u):$(id -g) --volume "$PWD:/app" dannyben/bashly generate
-        docker run --rm --user $(id -u):$(id -g) --volume "$PWD:/app" dannyben/bashly add comp script --force
+        ./generate
+
         sleep 5 
     ) &
 done

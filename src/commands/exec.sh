@@ -1,6 +1,6 @@
 name: exec
 alias: e
-filename: commands/exec
+filename: commands/exec.sh
 help: Exec a command on a container.
 catch_all: true
 args:
@@ -16,3 +16,12 @@ filters:
   - is_laravel_directory
   - docker_running
   - requires_variables
+
+
+---
+#!/bin/bash
+set -e
+
+exec_command ${args[container]} ${args[command]} other_args
+
+set +e

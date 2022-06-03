@@ -1,2 +1,0 @@
-#!/bin/bash
-exec_command ${args[--container]} "composer ${args[command]}" other_args

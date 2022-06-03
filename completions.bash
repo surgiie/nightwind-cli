@@ -9,88 +9,16 @@ _nightwind_completions() {
   local compline="${COMP_WORDS[@]:1:$COMP_CWORD-1}"
 
   case "$compline" in
-    'composer'*)
-      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
-      ;;
-
-    'artisan'*)
-      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
-      ;;
-
-    'render'*)
-      COMPREPLY=($(compgen -W "--help --rebuild --remove -h" -- "$cur"))
-      ;;
-
-    'build'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
-      ;;
-
     'init'*)
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
-      ;;
-
-    'nuke'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
-      ;;
-
-    'exec'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
-      ;;
-
-    'logs'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
-      ;;
-
-    'npm'*)
-      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
-      ;;
-
-    'up'*)
-      COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
-      ;;
-
-    'np'*)
-      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
-      ;;
-
-    'r'*)
-      COMPREPLY=($(compgen -W "--help --rebuild --remove -h" -- "$cur"))
-      ;;
-
-    'e'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
-      ;;
-
-    'l'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
       ;;
 
     'i'*)
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
       ;;
 
-    'b'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
-      ;;
-
-    'u'*)
-      COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
-      ;;
-
-    'a'*)
-      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
-      ;;
-
-    'c'*)
-      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
-      ;;
-
-    'n'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
-      ;;
-
     *)
-      COMPREPLY=($(compgen -W "--help --version -h -v a artisan b build c composer e exec i init l logs n np npm nuke r render u up" -- "$cur"))
+      COMPREPLY=($(compgen -W "--help --version -h -v i init" -- "$cur"))
       ;;
 
   esac

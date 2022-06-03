@@ -1,6 +1,24 @@
+name: up
+alias: u
+help: Start docker compose services.
+catch_all: true
+filename: commands/up.sh
+filters:
+  - is_laravel_directory
+  - docker_running
+  - env_file_required
+  - requires_variables
+  - requires_rendered_files
+dependencies:
+  - docker
+  - find
+flags:
+- long: --force
+  help: Overwrite existing files.
+---
 #!/bin/bash
+set -e
 
-# Startup project docker compose services from vailable docker compose yaml files.
 
 # run_hook "before_up"
 
@@ -53,4 +71,3 @@ echo "TAG NAMESPACE: $docker_tag_namespace"
 
 
 # lightgreen "Started services!"
-

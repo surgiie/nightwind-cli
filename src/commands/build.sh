@@ -1,6 +1,24 @@
+name: build
+alias: b
+help: Build docker image(s) in .nightwind/dockerfiles.
+catch_all: true
+filename: commands/build.sh
+filters:
+  - is_laravel_directory
+  - docker_running
+  - requires_variables
+dependencies:
+  - docker
+  - find
+args:
+- name: target
+  help: The image to build, if excluded will build all in the dockerfiles directory. Should exist in .nightwind/dockerfiles/<target>.Dockerfile
+
+
+---
 #!/bin/bash
 
-# Build .nightwind/rendered/dockerfiles images.
+set -e
 
 target="${args[target]}"
 
@@ -19,3 +37,5 @@ then
 fi
 
 build_project_images "$target" other_args
+
+set +e

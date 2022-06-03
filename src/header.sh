@@ -3,8 +3,8 @@
 # header.sh doesnt have access to lib/helpers for some reason.
 cli_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
-source "$cli_path/src/lib/colors.sh"
-source "$cli_path/src/lib/helpers.sh"
+source "$cli_path/src/support/colors.sh"
+source "$cli_path/src/support/helpers.sh"
 
 if [ "$#" -eq 0 ] || [[ "$*" == *--help* ]]; then
     export LOGO_TEXT=$(
