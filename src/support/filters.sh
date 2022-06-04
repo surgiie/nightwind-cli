@@ -22,6 +22,15 @@ filter_env_file_required(){
 }
 
 ## check that .env file is present.
+filter_requires_docker_tag_namespace(){
+    result="$(get_docker_tag_namespace)"
+    if [ -z "$result" ];
+    then
+        echo "$(red The docker_tag_namespace variable is empty or couldnt be parsed from variables.json. Bad quotes/json\?)"
+    fi
+}
+
+## check that .env file is present.
 filter_is_laravel_directory(){
     if  [ ! -f "composer.json" ] || ! grep -q "laravel/framework" composer.json 
     then
@@ -41,6 +50,6 @@ filter_requires_variables(){
 filter_requires_rendered_files(){
     if [ ! -d ".nightwind/rendered" ] || [ -z "$(ls -A ".nightwind/rendered")" ]
     then
-        echo "$(red The template files have not been rendered. Run: \`nightwind render\`)"
+        echo "$(red The template files have not been rendered/nothing to render. Did you run \`nightwind render\`)"
     fi
 }

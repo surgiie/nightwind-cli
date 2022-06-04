@@ -16,11 +16,11 @@ services:
     networks:
       - {{ $dockerTagNamespace }}-network
     depends_on:
-      - cache
-      - database
-  web-server:
-    image: {{ $dockerTagNamespace }}/web-server
-    container_name: {{ $dockerTagNamespace }}-web-server
+      - redis
+      - mysql
+  nginx:
+    image: {{ $dockerTagNamespace }}/nginx
+    container_name: {{ $dockerTagNamespace }}-nginx
     restart: unless-stopped
     env_file: ../../../.env
     tty: true
@@ -34,8 +34,8 @@ services:
       - ../nginx/ssl:{{ $dockerSslDirectory }}
     networks:
       - {{ $dockerTagNamespace }}-network
-  cache:
-    container_name: {{ $dockerTagNamespace }}-cache
+  redis:
+    container_name: {{ $dockerTagNamespace }}-redis
     image: redis:6
     restart: unless-stopped
     env_file: ../../../.env
@@ -46,15 +46,15 @@ services:
       - {{ $dockerTagNamespace }}-redis:/data
     networks:
       - {{ $dockerTagNamespace }}-network
-  database:
+  mysql:
     image: mysql:8.0.27
-    container_name: {{ $dockerTagNamespace }}-database
+    container_name: {{ $dockerTagNamespace }}-mysql
     restart: unless-stopped
     tty: true
     ports:
       - "{{ $dbHostPort }}:3306"
     volumes:
-      - {{ $dockerTagNamespace }}-database:/var/lib/mysql/
+      - {{ $dockerTagNamespace }}-mysql:/var/lib/mysql/
     networks:
       - {{ $dockerTagNamespace }}-network
     env_file: ../../../.env
@@ -68,7 +68,7 @@ services:
       interval: 10s
       timeout: 2s
       retries: 10
-  scheduler:
+  laravel-scheduler:
     image: {{ $dockerTagNamespace }}/app
     container_name: {{ $dockerTagNamespace }}-scheduler
     restart: unless-stopped
@@ -87,7 +87,7 @@ services:
               sleep 60
           done
         "
-  queue:
+  laravel-queue:
     image: {{ $dockerTagNamespace }}/app
     container_name: {{ $dockerTagNamespace }}-queue
     restart: unless-stopped
@@ -117,7 +117,7 @@ networks:
   {{ $dockerTagNamespace }}-network:
     driver: bridge
 volumes:
-  {{ $dockerTagNamespace }}-database:
+  {{ $dockerTagNamespace }}-mysql:
     driver: local
   {{ $dockerTagNamespace }}-redis:
     driver: local

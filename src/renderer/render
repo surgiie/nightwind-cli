@@ -7,6 +7,7 @@ use Symfony\Component\Finder\Finder;
 use Nightwind\Renderer;
 
 global $argv;
+
 // bashly's other_args passes options as "--name value" instead of "--name=value" which is how blade cli parser expects them, format them accordingly.
 $args = implode('=', array_slice($argv, 2));
 $args = str_replace('=--', " --", $args);
@@ -19,15 +20,11 @@ $renderer = new Renderer(
     workingDirectory: $workingDirectory,
 );
 
-// render templates
 $finder = new Finder;
 $files = $finder->in($workingDirectory."/templates")->files();
 
 foreach ($files as $file) {
     $blade = $renderer->render($file);
-
-    $saveLocation = $blade->getSaveLocation();
-
 }
 
 echo "\nRendered project templates at .nightwind/rendered.\n";

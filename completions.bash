@@ -9,7 +9,19 @@ _nightwind_completions() {
   local compline="${COMP_WORDS[@]:1:$COMP_CWORD-1}"
 
   case "$compline" in
+    'render'*)
+      COMPREPLY=($(compgen -W "--help --rebuild --remove -h" -- "$cur"))
+      ;;
+
     'init'*)
+      COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
+      ;;
+
+    'up'*)
+      COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
+      ;;
+
+    'u'*)
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
       ;;
 
@@ -17,8 +29,12 @@ _nightwind_completions() {
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
       ;;
 
+    'r'*)
+      COMPREPLY=($(compgen -W "--help --rebuild --remove -h" -- "$cur"))
+      ;;
+
     *)
-      COMPREPLY=($(compgen -W "--help --version -h -v i init" -- "$cur"))
+      COMPREPLY=($(compgen -W "--help --version -h -v i init r render u up" -- "$cur"))
       ;;
 
   esac

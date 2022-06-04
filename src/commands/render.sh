@@ -18,11 +18,10 @@ flags:
 #!/bin/bash
 set -e
 
-
 if [[ "$(docker images -q nightwind/renderer 2>/dev/null)" == "" ]] || [[ ${args[--rebuild]} == '1' ]]; 
 then
     cd "$(get_cli_path)/src/renderer"
-    yellow "Building docker image for nightwind/renderer."
+    cyan "INFO: Building docker image for nightwind/renderer."
     docker build -t nightwind/renderer --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) .
     cd -
 fi
@@ -32,7 +31,7 @@ rm -rf $(get_cli_path)/src/renderer/.project
 cp -R $PWD/.nightwind $(get_cli_path)/src/renderer/.project
 cp $PWD/.env $(get_cli_path)/src/renderer/.project/.env
 
-# Mounted volume directories get mounted as root, a work around as commented here: https://github.com/moby/moby/issues/2259#issuecomment-26564115
+## Mounted volume directories get mounted as root, a work around as commented here: https://github.com/moby/moby/issues/2259#issuecomment-26564115
 rm -rf $PWD/.nightwind/rendered
 mkdir -p $PWD/.nightwind/rendered
 chown $(id -u):$(id -g) $PWD/.nightwind/rendered

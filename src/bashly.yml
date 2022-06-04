@@ -2,4 +2,7 @@ name: nightwind
 help: A command-line interface for interacting and managing Laravel docker projects with blade rendered templates.
 version: "v1.0.0"
 commands:
+
+ - import: src/commands/up.sh
  - import: src/commands/init.sh
+ - import: src/commands/render.sh

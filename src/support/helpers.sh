@@ -1,10 +1,17 @@
 #!/bin/bash
+
 get_cli_path(){
     echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 }
 
-parse_variable_json_value(){
+parse_variable_json_string_value(){
     result="$(grep -o "\"${1}\": \"[^\"]*" .nightwind/variables.json | grep -o '[^"]*$')"
+    echo $result
+}
+
+get_docker_tag_namespace(){
+    result="$(parse_variable_json_string_value docker_tag_namespace)"
+   
     echo $result
 }
 
@@ -61,7 +68,7 @@ exec_command(){
     local command="$2"
     local -n other_arguments="$3"
 
-    docker_tag_namespace="$(parse_variable_json_value docker_tag_namespace)"
+    docker_tag_namespace="$(get_docker_tag_namespace)"
 
     
     container="$docker_tag_namespace-${container/$docker_tag_namespace-/''}"
@@ -74,7 +81,7 @@ build_project_images(){
     local target="$1"
     local -n build_args="$2"
     
-    docker_tag_namespace="$(parse_variable_json_value docker_tag_namespace)"
+    docker_tag_namespace="$(get_docker_tag_namespace)"
 
     # if no target has been specified, build all available files.
     if [ -z $target ]
@@ -90,7 +97,7 @@ build_project_images(){
         filename="${dockerfile##*dockerfiles/}" ## get relative path
         target="${filename%%.*}"
         
-        cyan "Running: docker build -t $docker_tag_namespace/$target -f .nightwind/rendered/dockerfiles/$filename . $build_args"
+        cyan "INFO: Running: \`docker build -t $docker_tag_namespace/$target -f .nightwind/rendered/dockerfiles/$filename . $build_args\`"
         docker build -t $docker_tag_namespace/$target -f ".nightwind/rendered/dockerfiles/$filename" . $build_args 
     done
 }

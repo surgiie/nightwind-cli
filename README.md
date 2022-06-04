@@ -27,7 +27,7 @@ PATH=/usr/local/bin/nightwind:$PATH
 
 ### Optionally source bash completion:
 
-`source /path/to/where/you/put/this/completions.bash`
+`source /usr/local/bin/nightwind/completions.bash`
 
 ## Getting Started
 
@@ -41,12 +41,13 @@ nightwind init
 
 This will generate some default template files for running a laravel application in docker with the following services: `php-fpm`, `nginx`, `redis` & `mysql`.
 
+*Note* Subsequent calls to `nightwind init` will generate files only if they dont exist. `nightwind init --force` will force overwrite ALL existing files.
+
 #### Customize Initial/Base Variables:
 Before you move on to starting your docker services, you should then customize the values of `.nightwind/variables.json` to your liking or to your environment's requirements:
 
 ```js
 {
-    "env": "local", // your apps environment
     "domain": "app.test", // the domain/hostname of your app, should be changed to reflect env domain.
     "db_host_port": 3306, // the port your machine should use for mysql
     "redis_host_port": 6379, // the port your machine should use for redis
@@ -88,9 +89,7 @@ There are 3 options for variable data:
 
 ### Up & Running
 
-At this point, it is assumed your template files and `variables.json|.env` are to your liking or fit your env needs and you have rendered your template files
-it is a good idea to review your rendered files to make sure it has rendered to your expectations, and that your env/connection
-settings match your docker setup. When ready, you may start up services with:
+At this point, it is assumed your template files and `variables.json|.env` are to your liking, fit your env needs and reflect the requirements of your rendered in your `.nightwind/rendered/app.yaml` file.  When ready, you may start up services with:
 
 ```bash
 # if ready to start up project otherwise review templates and make changes as needed before running:

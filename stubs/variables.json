@@ -1,11 +1,11 @@
 {
     "domain": "app.test",
-    "db_host_port": 3306,
-    "redis_host_port": 6379,
-    "docker_user_uid": 1000,
-    "docker_php_version": 8.1,
-    "nginx_host_http_port": 80,
-    "nginx_host_https_port": 443,
+    "db_host_port": "3306",
+    "redis_host_port": "6379",
+    "docker_user_uid": "1000",
+    "docker_php_version": "8.1",
+    "nginx_host_http_port": "80",
+    "nginx_host_https_port": "443",
     "docker_username": "nightwind",
     "docker_tag_namespace": "nightwind",
     "docker_ssl_directory": "/var/www/ssl"
