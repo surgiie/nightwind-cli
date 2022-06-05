@@ -5,7 +5,7 @@ help: Exec a command on a container.
 catch_all: true
 args:
 - name: container
-  help: The target container to exec command. Can optionally exclude your project prefix.
+  help: The target container to exec command.
   required: true
 - name: command
   help: The command to exec.
@@ -16,8 +16,6 @@ filters:
   - is_laravel_directory
   - docker_running
   - requires_variables
-
-
 ---
 #!/bin/bash
 set -e

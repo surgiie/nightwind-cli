@@ -7,6 +7,7 @@ filters:
 - is_laravel_directory
 - docker_running
 - requires_variables
+- requires_docker_tag_namespace
 dependencies:
   - docker
 flags:
@@ -22,14 +23,6 @@ args:
 #!/bin/bash
 set -e
 
-variables_file=".nightwind/variables.yaml"
-eval $(yaml_load $variables_file)
-
-container="${args[--container]}"
-command="${args[command]}"
-container="$tag_prefix-${container/$tag_prefix-/''}"
-
-cyan "Running: docker exec -it "$container" npm $command $other_args"
-docker exec -it $container npm $command $other_args
+exec_command ${args[--container]} "npm ${args[command]}" other_args
 
 set +e

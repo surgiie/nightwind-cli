@@ -51,7 +51,7 @@ do
     target="${path%%.*}"
 done
 
-cyan "INFO: Running: \`docker compose $yaml_file_arg up -d $other_args\`"
+cyan "INFO: Running: docker compose $yaml_file_arg up -d $other_args"
 docker compose $yaml_file_arg up -d $other_args
 
 # run hook if successful.

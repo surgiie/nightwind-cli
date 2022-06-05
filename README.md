@@ -1,14 +1,10 @@
 # Nightwind CLI
 
-Manage your laravel project's docker compose setup with blade rendered template files.
-
-## Introduction
-
-`nightwind` is a part bash, part php CLI (via ephemeral docker container) for managing & running your laravel project's docker compose setup with [blade](https://laravel.com/docs/9.x/blade) rendered template files.
+A command-line interface for interacting, managing and running your Laravel docker compose projects with blade rendered templates.
 
 ## Dependencies
 
-- Bash 4.3 + (With tools: find|sed)
+- Bash 4.3 + (With tools: find)
 - Docker with [Composer v2](https://docs.docker.com/compose/cli-command/)
 
 ### Supported/Tested OS
@@ -33,22 +29,30 @@ PATH=/usr/local/bin/nightwind:$PATH
 
 ### Initialize Project
 
-To initialize your project to use `nightwind`, run:
+To initialize your project's template files, run `nightwind init`.
 
-```bash
-nightwind init 
-```
+This will generate a `.nightwind` folder in the root directory of your laravel project.
 
-This will generate some default template files for running a laravel application in docker with the following services: `php-fpm`, `nginx`, `redis` & `mysql`.
+This directory will contain some default template files for the following stack/features:
 
-*Note* Subsequent calls to `nightwind init` will generate files only if they dont exist. `nightwind init --force` will force overwrite ALL existing files.
+- php-fpm
+- nginx
+- redis
+- mysql 
+- local ssl self signed cert
 
-#### Customize Initial/Base Variables:
-Before you move on to starting your docker services, you should then customize the values of `.nightwind/variables.json` to your liking or to your environment's requirements:
+The out of box defaults are tailored for a local environment that mimics a production like environment as much as possible, and of course can be completely changed to your liking.
+
+
+*Note* `nightwind init` will generate files only if they dont already exist, `nightwind init --force` will force overwrite ALL existing files if you wish to re-initialize files.
+
+#### Customize Variables:
+
+Your first step before rendering your template files, should be to customize the values of `.nightwind/variables.json` to your liking or to your environment's requirements:
 
 ```js
 {
-    "domain": "app.test", // the domain/hostname of your app, should be changed to reflect env domain.
+    "domain": "app.local", // the domain/hostname of your app, should be changed to reflect env domain.
     "db_host_port": 3306, // the port your machine should use for mysql
     "redis_host_port": 6379, // the port your machine should use for redis
     "docker_user_uid": 1000,  // the linux user uid for the application dockerfile
@@ -56,73 +60,77 @@ Before you move on to starting your docker services, you should then customize t
     "nginx_host_http_port": 80, // the port your machine should use for nginx http traffic
     "nginx_host_https_port": 443, // the port your machine should use for nginx https traffic
     "docker_username": "nightwind", // the linux username for the application dockerfile 
-    "docker_tag_namespace": "nightwind" // tag namespace/prefix to use for tagging/naming docker resources, e.g image tag : <namespace>/web-server.
+    "docker_tag_namespace": "nightwind", // tag namespace/prefix to use for tagging/naming docker resources, e.g image tag : <namespace>/web-server.
     "docker_ssl_directory": "/var/www/ssl" // the directory for local self signed certs or your project's ssl in docker container.    
 }
 ```
-You may add any custom variables as well, this file along with your `.env` will get converted to camel cased variable data when you run `nightwind render`. 
+You may add any custom variables as well, this file along with your `.env` will get converted to camel case variable data when you run `nightwind render`. 
 
 See render templates/template data section below for more.
 
-#### Customize Templates
+#### Env Setup
 
-At this point, you can optionally review the `.nightwind/templates` files and tweak to your liking/needs. Make sure variables are referenced in camel case, match your needs, etc.
-
-
-### Rendering Templates
-
-Before starting your project docker services, you templates must be rendered.
-
-To render templates, run `nightwind render`, before running review your variable data as documented below:
-
-##### Template File Variable Data
-
-There are 3 options for variable data:
-
-1. Your `.nightwind/variables.json` file acts as the base variable data.
-2. Your project's `.env` file which takes precedence  over your `variables.json` file.
-3. Command line options when running `nightwind render`. Example: `nightwind render --app-env=production`
-
-
-*NOTE* - Since command line options are often passed as kebab case and php does not support kebab cased variables, e.g `$app-env`, all variable data is converted to camel case. Therefore, if you define a variable in your `variables.json` or `.env` file as snake or kebab case, you will need to reference it as camel case in your template files.
-
-
-### Up & Running
-
-At this point, it is assumed your template files and `variables.json|.env` are to your liking, fit your env needs and reflect the requirements of your rendered in your `.nightwind/rendered/app.yaml` file.  When ready, you may start up services with:
-
-```bash
-# if ready to start up project otherwise review templates and make changes as needed before running:
-nightwind up
-```
-
-
-**NOTE** You may add extra post start up commands via the `.nightwind/hooks/after_up` hook.
-
-At this point, your docker services should be up and running, if you are in a local env, configure your hosts for local testing by adding an entry to your hosts file for local testing:
+For your local environment, configure your hosts for local testing by adding an entry to your hosts file for local testing:
 
 ```
-127.0.0.1 app.test # use your local domain if you provided one during `nightwind init`.
+127.0.0.1 app.local # use domain as you defined in your variables.json
 
 # Allow talking to the Docker host
 192.168.1.72 host.docker.internal
 192.168.1.72 gateway.docker.internal
 ```
 
-### Help
+For other environments, setup is of course at your discretion/needs.
+#### Customize Templates
 
-`nightwind --help`
+At this point, you can optionally review the `.nightwind/templates` files and tweak to your liking/needs. Make sure variables are referenced in camel case and match your needs.
 
-### Extending/Custom Commands
+**Note** All variables in your `variables.json` should be referenced in <strong>camel case</strong>. See template variable data section below for more.
 
+
+#### Customize Hooks
+
+You can optionally review the `.nightwind/hooks` files and tweak to your liking/needs. Make sure variables are referenced in camel case and match your needs.
+
+
+#### Rendering Templates
+
+Before starting your project docker compose services, your templates must be rendered.
+
+To render templates, run `nightwind render`.
+
+###### Template Variable Data
+
+There are 3 options for variable data.
+
+1. Your `.nightwind/variables.json` file acts as the base variable data.
+2. Your project's `.env` file which takes precedence over your `variables.json` file. 
+3. Command line options when running `nightwind render`. Example: `nightwind render --app-env=production`
+
+
+*NOTE* - Since command line options are often passed as kebab case and php does not support kebab cased variables, e.g `$app-env`, all variable data is converted to camel case. Therefore, if you define a variable in your `variables.json` or `.env` file as snake or kebab case, you will need to reference it as camel case in your template files. e.g your `APP_ENV` .env value will be referenced as `$appEnv` in your template files.
+
+
+### Up & Running
+
+At this point, it is assumed you:
+
+- Customized `.nightwind/hooks` and `.nightwind/templates` to your liking/needs.
+- Customized `variables.json` and `.env` to your templates needs.
+- Rendered templates with `nightwind render` 
+
+ When ready to start up things, you may do so with `nightwind up`
+
+
+At this point, you should be able to load your laravel site at `https://<domain>`, where domain is the `domain` you provided in your `variables.json` and 
+if env is local, the hostname/domain you configured in your hosts file.
 
 ### Contributing
 
 - Install [Bashly](https://bashly.dannyb.co/installation/) or run with docker.
 - On new branch, add command/feature changes
-- Regenerate CLI script from `src` using `bashly generate` or use `./dev` to watch for changes (via inotifytools) to automatically regenerate cli.
+- Regenerate CLI script from `src` using `bashly generate` or using the docker `./generate` script.
 - Open Pull Request
-- Collab Corp Discord (Will send invite as requested)
 
 ### Kudos
 

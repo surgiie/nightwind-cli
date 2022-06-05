@@ -10,7 +10,7 @@ cert_path="$ssl_directory/live/$domain"
 
 mkdir -p $cert_path
 
-# generate dhparams for nginx site conf.
+# generate dhparams for nginx site conf and local ssl, remove as needed.
 if [ ! -f "$ssl_directory/ssl-dhparams.pem" ];
 then 
     echo "Generating initial ssl dhparams for nginx ssl conf options. Go grab a cup of coffee, this is going to take a while."

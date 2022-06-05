@@ -8,6 +8,7 @@ filters:
 - is_laravel_directory
 - docker_running
 - requires_variables
+- requires_docker_tag_namespace
 dependencies:
   - docker
 flags:

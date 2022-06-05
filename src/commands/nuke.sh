@@ -23,16 +23,7 @@ if [ ! -d ".nightwind/rendered/compose" ] || [ -z "$(ls -A ".nightwind/rendered/
 fi
 
 
-yellow "*********************************************************************************************"
-yellow "                              W A R N I N G                                                  "
-yellow "      This command stops & removes ALL of your docker services including volumes             "
-yellow "                         and prunes docker resources                                         "
-yellow "                                                                                             "
-yellow "*********************************************************************************************"
-
-
-if confirm "Continue?";
-then
+nuke(){
     yaml_file_arg="-f .nightwind/rendered/compose/app.yaml"
     
     for yaml in $(find ".nightwind/rendered/compose" -type f -name '*.yaml' ! -name app.yaml); 
@@ -42,13 +33,37 @@ then
         yaml_file_arg="${yaml_file_arg} -f $path"
         target="${path%%.*}"
     done
-    cyan "Stopping & removing project service containers..."
+
+    cyan "INFO: Running: docker kill \$(docker compose $yaml_file_arg ps -q)"
     docker kill $(docker compose $yaml_file_arg ps -q)
+    
+    cyan "INFO: Running: docker rm --force  \$(docker compose $yaml_file_arg ps -q --all)"
     docker rm --force  $(docker compose $yaml_file_arg ps -q --all)
 
-    echo "Running: docker system prune --all --volumes"
-    docker system prune --all --volumes
+    cyan "INFO: Running: docker system prune --all --volumes --force"
+    docker system prune --all --volumes --force
 
     lightgreen "Stopped and removed project docker resources."
+}
+
+if [ $APP_ENV != "local" ];
+then
+    yellow "*********************************************************************************************"
+    yellow "                              W A R N I N G                                                  "
+    yellow "                         Non-Local Env: $APP_ENV                                             "
+    yellow "      This command stops & removes ALL of your docker compose services & resources           "
+    yellow "                    and runs docker system prune --all --volumes --force                     "
+    yellow "                                                                                             "
+    yellow "*********************************************************************************************"
+
+    if confirm "Continue?";
+    then
+        nuke
+    else
+        red "Aborted."
+    fi
+else
+    nuke
 fi
+
 set +e

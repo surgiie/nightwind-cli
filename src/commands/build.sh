@@ -7,14 +7,13 @@ filters:
   - is_laravel_directory
   - docker_running
   - requires_variables
+  - requires_docker_tag_namespace
 dependencies:
   - docker
   - find
 args:
 - name: target
   help: The image to build, if excluded will build all in the dockerfiles directory. Should exist in .nightwind/dockerfiles/<target>.Dockerfile
-
-
 ---
 #!/bin/bash
 
@@ -28,14 +27,7 @@ then
     exit 1
 fi
 
-docker_tag_namespace="$(grep -o '"docker_tag_namespace": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$')"
-
-if [ -z $docker_tag_namespace ];
-then
-    echo "$(red MissingVariableError:) $(bold The docker_tag_namespace json variable is required to build images.)"
-    exit 1;
-fi
-
+docker_tag_namespace="$(get_docker_tag_namespace)"
 build_project_images "$target" other_args
 
 set +e

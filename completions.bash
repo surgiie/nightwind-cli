@@ -9,6 +9,14 @@ _nightwind_completions() {
   local compline="${COMP_WORDS[@]:1:$COMP_CWORD-1}"
 
   case "$compline" in
+    'composer'*)
+      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
+      ;;
+
+    'artisan'*)
+      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
+      ;;
+
     'render'*)
       COMPREPLY=($(compgen -W "--help --rebuild --remove -h" -- "$cur"))
       ;;
@@ -17,8 +25,24 @@ _nightwind_completions() {
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
       ;;
 
+    'logs'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
+    'nuke'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
+    'npm'*)
+      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
+      ;;
+
     'up'*)
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
+      ;;
+
+    'np'*)
+      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
       ;;
 
     'u'*)
@@ -33,8 +57,24 @@ _nightwind_completions() {
       COMPREPLY=($(compgen -W "--help --rebuild --remove -h" -- "$cur"))
       ;;
 
+    'n'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
+    'c'*)
+      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
+      ;;
+
+    'a'*)
+      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
+      ;;
+
+    'l'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
     *)
-      COMPREPLY=($(compgen -W "--help --version -h -v i init r render u up" -- "$cur"))
+      COMPREPLY=($(compgen -W "--help --version -h -v a artisan c composer i init l logs n np npm nuke r render u up" -- "$cur"))
       ;;
 
   esac
