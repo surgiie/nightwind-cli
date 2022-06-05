@@ -13,13 +13,13 @@ fi
 
 if [ ! -d "node_modules" ];
 then
-    nighwind npm install
+    nightwind npm install
 fi
 
 # generate key if not set
 if [ -z "$APP_KEY" ];
 then
-    nighwind artisan key:generate
+    nightwind artisan key:generate
 fi
 
 docker_tag_namespace="$(grep -o '"docker_tag_namespace": "[^"]*' .nightwind/variables.json | grep -o '[^"]*$')"
