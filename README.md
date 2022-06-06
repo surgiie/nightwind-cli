@@ -112,8 +112,15 @@ There are 3 options for variable data.
 
 
 ### Up & Running
+Out of the box, you should be able to get up and running locally with:
 
-At this point, it is assumed you:
+```bash
+nightwind init
+nightwind render
+nightwind up
+```
+
+Otherwise at this point, it is assumed you:
 
 - Customized `.nightwind/hooks` and `.nightwind/templates` to your liking/needs.
 - Customized `variables.json` and `.env` to your templates needs.
