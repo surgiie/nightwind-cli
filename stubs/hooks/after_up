@@ -27,7 +27,7 @@ docker_tag_namespace="$(grep -o '"docker_tag_namespace": "[^"]*' .nightwind/vari
 # mysql docker containers might not be ready to accept connections so make sure it's ready before attempting migrate,
 # this health check utilizes the health check defined in app.yaml out of the box, customize to liking:
 printf "Waiting for mysql to accept connections \n"; 
-while [ $(docker inspect --format "{{json .State.Health.Status }}" $docker_tag_namespace-database) != "\"healthy\"" ]; 
+while [ $(docker inspect --format "{{json .State.Health.Status }}" $docker_tag_namespace-mysql) != "\"healthy\"" ]; 
 do 
     printf "."; 
     sleep 1; 

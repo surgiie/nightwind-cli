@@ -34,6 +34,11 @@ services:
       - ../nginx/ssl:{{ $dockerSslDirectory }}
     networks:
       - {{ $dockerTagNamespace }}-network
+    healthcheck: 
+      test: ["CMD-SHELL", 'service nginx status || exit 1']
+      interval: 10s
+      timeout: 2s
+      retries: 10
   redis:
     container_name: {{ $dockerTagNamespace }}-redis
     image: redis:6
@@ -46,6 +51,11 @@ services:
       - {{ $dockerTagNamespace }}-redis:/data
     networks:
       - {{ $dockerTagNamespace }}-network
+    healthcheck: 
+      test: ["CMD-SHELL", 'redis-cli ping']
+      interval: 10s
+      timeout: 2s
+      retries: 10
   mysql:
     image: mysql:8.0.27
     container_name: {{ $dockerTagNamespace }}-mysql
@@ -68,7 +78,7 @@ services:
       interval: 10s
       timeout: 2s
       retries: 10
-  laravel-scheduler:
+  scheduler:
     image: {{ $dockerTagNamespace }}/app
     container_name: {{ $dockerTagNamespace }}-scheduler
     restart: unless-stopped
@@ -87,7 +97,7 @@ services:
               sleep 60
           done
         "
-  laravel-queue:
+  queue:
     image: {{ $dockerTagNamespace }}/app
     container_name: {{ $dockerTagNamespace }}-queue
     restart: unless-stopped

@@ -1,7 +1,7 @@
 
 name: nuke
 alias: n
-help: Nuke all project docker compose services & volumes.
+help: Nuke all project docker compose services & volumes and optionally run docker system prune.
 catch_all: true
 filename: commands/nuke.sh
 filters:
@@ -9,6 +9,9 @@ filters:
   - docker_running
   - env_file_required
   - requires_rendered_files
+flags:
+- long: --force
+  help: Force nuke in non local environments.
 dependencies:
   - docker
   - find
@@ -37,7 +40,7 @@ nuke(){
     cyan "INFO: Running: docker kill \$(docker compose $yaml_file_arg ps -q)"
     docker kill $(docker compose $yaml_file_arg ps -q)
     
-    cyan "INFO: Running: docker rm --force  \$(docker compose $yaml_file_arg ps -q --all)"
+    cyan "INFO: Running: docker compose rm -v --force  \$(docker compose $yaml_file_arg ps -q --all)"
     docker rm --force  $(docker compose $yaml_file_arg ps -q --all)
 
     cyan "INFO: Running: docker system prune --all --volumes --force"
@@ -46,13 +49,14 @@ nuke(){
     lightgreen "Stopped and removed project docker resources."
 }
 
-if [ $APP_ENV != "local" ];
+if [ $APP_ENV != "local" ] && [[ ${args[--force]} != "1" ]];
 then
     yellow "*********************************************************************************************"
     yellow "                              W A R N I N G                                                  "
     yellow "                         Non-Local Env: $APP_ENV                                             "
     yellow "      This command stops & removes ALL of your docker compose services & resources           "
-    yellow "                    and runs docker system prune --all --volumes --force                     "
+    yellow "      and also runs docker system prune, this is meant for a local env, please use with      "
+    yellow "      caution as docker system prune removes things not associated with project.             "
     yellow "                                                                                             "
     yellow "*********************************************************************************************"
 

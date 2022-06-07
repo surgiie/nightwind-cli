@@ -65,7 +65,7 @@ nightwind_usage() {
   echo "  init       Initialize project .nightwind directory & template files."
   echo "  render     Render the project .nightwind template files."
   echo "  up         Start docker compose services."
-  echo "  nuke       Nuke all project docker compose services & volumes."
+  echo "  nuke       Nuke all project docker compose services & volumes and optionally run docker system prune."
   echo "  composer   Proxy a composer command to the app service container."
   echo "  npm        Proxy a npm command to the app service container."
   echo "  artisan    Proxy a artisan command to the app service container."
@@ -190,11 +190,11 @@ nightwind_up_usage() {
 
 nightwind_nuke_usage() {
   if [[ -n $long_usage ]]; then
-    printf "nightwind nuke - Nuke all project docker compose services & volumes.\n"
+    printf "nightwind nuke - Nuke all project docker compose services & volumes and optionally run docker system prune.\n"
     echo
 
   else
-    printf "nightwind nuke - Nuke all project docker compose services & volumes.\n"
+    printf "nightwind nuke - Nuke all project docker compose services & volumes and optionally run docker system prune.\n"
     echo
 
   fi
@@ -203,7 +203,7 @@ nightwind_nuke_usage() {
   echo
 
   printf "Usage:\n"
-  printf "  nightwind nuke [...]\n"
+  printf "  nightwind nuke [options] [...]\n"
   printf "  nightwind nuke --help | -h\n"
   echo
 
@@ -212,6 +212,10 @@ nightwind_nuke_usage() {
 
     echo "  --help, -h"
     printf "    Show this help\n"
+    echo
+
+    echo "  --force"
+    printf "    Force nuke in non local environments.\n"
     echo
 
   fi
@@ -765,7 +769,7 @@ nightwind_nuke_command() {
       cyan "INFO: Running: docker kill \$(docker compose $yaml_file_arg ps -q)"
       docker kill $(docker compose $yaml_file_arg ps -q)
 
-      cyan "INFO: Running: docker rm --force  \$(docker compose $yaml_file_arg ps -q --all)"
+      cyan "INFO: Running: docker compose rm -v --force  \$(docker compose $yaml_file_arg ps -q --all)"
       docker rm --force  $(docker compose $yaml_file_arg ps -q --all)
 
       cyan "INFO: Running: docker system prune --all --volumes --force"
@@ -774,13 +778,14 @@ nightwind_nuke_command() {
       lightgreen "Stopped and removed project docker resources."
   }
 
-  if [ $APP_ENV != "local" ];
+  if [ $APP_ENV != "local" ] && [[ ${args[--force]} != "1" ]];
   then
       yellow "*********************************************************************************************"
       yellow "                              W A R N I N G                                                  "
       yellow "                         Non-Local Env: $APP_ENV                                             "
       yellow "      This command stops & removes ALL of your docker compose services & resources           "
-      yellow "                    and runs docker system prune --all --volumes --force                     "
+      yellow "      and also runs docker system prune, this is meant for a local env, please use with      "
+      yellow "      caution as docker system prune removes things not associated with project.             "
       yellow "                                                                                             "
       yellow "*********************************************************************************************"
 
@@ -1168,6 +1173,12 @@ nightwind_nuke_parse_requirements() {
   while [[ $# -gt 0 ]]; do
     key="$1"
     case "$key" in
+
+    --force )
+
+      args[--force]=1
+      shift
+      ;;
 
     -?* )
       other_args+=("$1")

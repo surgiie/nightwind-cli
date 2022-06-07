@@ -97,8 +97,11 @@ You can optionally review the `.nightwind/hooks` files and tweak to your liking/
 
 Before starting your project docker compose services, your templates must be rendered.
 
-To render templates, run `nightwind render`.
+To render templates, run `nightwind render`. 
 
+This will create a small docker image and run a ephemeral container to do the rendering in the php using the blade engine.
+
+**Note*: By default the image is not removed after its done. If you are not planning to render your templates often, you can have it remove itself with `nightwind render --remove`
 ###### Template Variable Data
 
 There are 3 options for variable data.

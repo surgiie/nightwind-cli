@@ -30,7 +30,7 @@ _nightwind_completions() {
       ;;
 
     'nuke'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
       ;;
 
     'npm'*)
@@ -58,7 +58,7 @@ _nightwind_completions() {
       ;;
 
     'n'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
       ;;
 
     'c'*)
