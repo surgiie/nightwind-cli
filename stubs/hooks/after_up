@@ -30,7 +30,7 @@ printf "Waiting for mysql to accept connections \n";
 while [ $(docker inspect --format "{{json .State.Health.Status }}" $docker_tag_namespace-mysql) != "\"healthy\"" ]; 
 do 
     printf "."; 
-    sleep 1; 
+    sleep 3; 
 done
 
 echo "\n"
