@@ -74,7 +74,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     healthcheck: 
-      test: ["CMD-SHELL", 'mysqladmin ping']
+      test: ["CMD-SHELL",  "/usr/bin/mysql --user=${DB_USERNAME} --password=${DB_PASSWORD} --execute \"SHOW DATABASES;\""]
       interval: 10s
       timeout: 2s
       retries: 10

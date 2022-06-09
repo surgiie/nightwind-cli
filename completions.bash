@@ -21,6 +21,10 @@ _nightwind_completions() {
       COMPREPLY=($(compgen -W "--help --rebuild --remove -h" -- "$cur"))
       ;;
 
+    'build'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
     'init'*)
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
       ;;
@@ -29,8 +33,16 @@ _nightwind_completions() {
       COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
       ;;
 
+    'down'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
     'nuke'*)
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
+      ;;
+
+    'exec'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
       ;;
 
     'npm'*)
@@ -45,6 +57,14 @@ _nightwind_completions() {
       COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
       ;;
 
+    'e'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
+    'd'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
     'u'*)
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
       ;;
@@ -57,6 +77,10 @@ _nightwind_completions() {
       COMPREPLY=($(compgen -W "--help --rebuild --remove -h" -- "$cur"))
       ;;
 
+    'b'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
     'n'*)
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
       ;;
@@ -65,16 +89,16 @@ _nightwind_completions() {
       COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
       ;;
 
-    'a'*)
-      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
-      ;;
-
     'l'*)
       COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
       ;;
 
+    'a'*)
+      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
+      ;;
+
     *)
-      COMPREPLY=($(compgen -W "--help --version -h -v a artisan c composer i init l logs n np npm nuke r render u up" -- "$cur"))
+      COMPREPLY=($(compgen -W "--help --version -h -v a artisan b build c composer d down e exec i init l logs n np npm nuke r render u up" -- "$cur"))
       ;;
 
   esac

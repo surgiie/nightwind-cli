@@ -90,8 +90,13 @@ At this point, you can optionally review the `.nightwind/templates` files and tw
 
 #### Customize Hooks
 
-You can optionally review the `.nightwind/hooks` files and tweak to your liking/needs. Make sure variables are referenced in camel case and match your needs.
+You can optionally review the `.nightwind/hooks` files and tweak to your liking/needs. The current hooks scripts will automatically run if a script file for it exists in `.nightwind/hooks`
 
+
+`.nightwind/hooks/before_up`  - Runs before `nightwind up` tasks are performed.
+`.nightwind/hooks/after_up`  - Runs after `nightwind up` tasks are performed.
+`.nightwind/hooks/before_down`  - Runs after `nightwind down` tasks are performed.
+`.nightwind/hooks/after_down`  - Runs after `nightwind down` tasks are performed.
 
 #### Rendering Templates
 

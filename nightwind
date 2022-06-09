@@ -65,6 +65,9 @@ nightwind_usage() {
   echo "  init       Initialize project .nightwind directory & template files."
   echo "  render     Render the project .nightwind template files."
   echo "  up         Start docker compose services."
+  echo "  build      Build docker image(s) in .nightwind/dockerfiles."
+  echo "  down       Stop docker compose services."
+  echo "  exec       Exec a command on a container."
   echo "  nuke       Nuke all project docker compose services & volumes and optionally run docker system prune."
   echo "  composer   Proxy a composer command to the app service container."
   echo "  npm        Proxy a npm command to the app service container."
@@ -183,6 +186,110 @@ nightwind_up_usage() {
 
     echo "  --force"
     printf "    Overwrite existing files.\n"
+    echo
+
+  fi
+}
+
+nightwind_build_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "nightwind build - Build docker image(s) in .nightwind/dockerfiles.\n"
+    echo
+
+  else
+    printf "nightwind build - Build docker image(s) in .nightwind/dockerfiles.\n"
+    echo
+
+  fi
+
+  printf "Alias: b\n"
+  echo
+
+  printf "Usage:\n"
+  printf "  nightwind build [TARGET] [...]\n"
+  printf "  nightwind build --help | -h\n"
+  echo
+
+  if [[ -n $long_usage ]]; then
+    printf "Options:\n"
+
+    echo "  --help, -h"
+    printf "    Show this help\n"
+    echo
+
+    printf "Arguments:\n"
+
+    echo "  TARGET"
+    printf "    The image to build, if excluded will build all in the dockerfiles directory.\n    Should exist in .nightwind/dockerfiles/<target>.Dockerfile\n"
+    echo
+
+  fi
+}
+
+nightwind_down_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "nightwind down - Stop docker compose services.\n"
+    echo
+
+  else
+    printf "nightwind down - Stop docker compose services.\n"
+    echo
+
+  fi
+
+  printf "Alias: d\n"
+  echo
+
+  printf "Usage:\n"
+  printf "  nightwind down [...]\n"
+  printf "  nightwind down --help | -h\n"
+  echo
+
+  if [[ -n $long_usage ]]; then
+    printf "Options:\n"
+
+    echo "  --help, -h"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+nightwind_exec_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "nightwind exec - Exec a command on a container.\n"
+    echo
+
+  else
+    printf "nightwind exec - Exec a command on a container.\n"
+    echo
+
+  fi
+
+  printf "Alias: e\n"
+  echo
+
+  printf "Usage:\n"
+  printf "  nightwind exec CONTAINER [COMMAND] [...]\n"
+  printf "  nightwind exec --help | -h\n"
+  echo
+
+  if [[ -n $long_usage ]]; then
+    printf "Options:\n"
+
+    echo "  --help, -h"
+    printf "    Show this help\n"
+    echo
+
+    printf "Arguments:\n"
+
+    echo "  CONTAINER"
+    printf "    The target container to exec command.\n"
+    echo
+
+    echo "  COMMAND"
+    printf "    The command to exec.\n"
+    printf "    Default: bash\n"
     echo
 
   fi
@@ -499,7 +606,7 @@ filter_requires_variables(){
 filter_requires_rendered_files(){
     if [ ! -d ".nightwind/rendered" ] || [ -z "$(ls -A ".nightwind/rendered")" ]
     then
-        echo "$(red The template files have not been rendered/nothing to render. Did you run \`nightwind render\`)"
+        echo "$(red The template files have not been rendered. Did you run \`nightwind render\`)"
     fi
 }
 
@@ -545,6 +652,25 @@ write_file(){
         cyan "INFO: Saved file $file."
         echo "$contents" > $file
     fi
+}
+
+#---
+#---
+get_docker_compose_yaml_files_argument(){
+
+    yaml_file_arg="-f .nightwind/rendered/compose/app.yaml"
+
+    for yaml in $(find ".nightwind/rendered/compose" -type f -name '*.yaml' ! -name app.yaml);
+
+    do
+        path="${yaml##*.nightwind/}"
+
+        path=".nightwind/$path"
+        yaml_file_arg="${yaml_file_arg} -f $path"
+        target="${path%%.*}"
+    done
+
+    echo "$yaml_file_arg"
 }
 #---
 #---
@@ -674,7 +800,6 @@ nightwind_render_command() {
   cp -R $PWD/.nightwind $(get_cli_path)/src/renderer/.project
   cp $PWD/.env $(get_cli_path)/src/renderer/.project/.env
 
-  rm -rf $PWD/.nightwind/rendered
   mkdir -p $PWD/.nightwind/rendered
   chown $(id -u):$(id -g) $PWD/.nightwind/rendered
 
@@ -720,27 +845,64 @@ nightwind_up_command() {
 
   cyan "INFO: Checking available compose files."
 
-  yaml_file_arg="-f .nightwind/rendered/compose/app.yaml"
-
-  for yaml in $(find ".nightwind/rendered/compose" -type f -name '*.yaml' ! -name app.yaml);
-
-  do
-      path="${yaml##*.nightwind/}"
-
-      path=".nightwind/$path"
-      yaml_file_arg="${yaml_file_arg} -f $path"
-      target="${path%%.*}"
-  done
+  yaml_file_arg="$(get_docker_compose_yaml_files_argument)"
 
   cyan "INFO: Running: docker compose $yaml_file_arg up -d $other_args"
   docker compose $yaml_file_arg up -d $other_args
 
-  # run hook if successful.
-  if [ $? -eq 0 ]; then
-      run_hook "after_up"
-  fi
+  run_hook "after_up"
 
   lightgreen "Started services!"
+
+  set +e
+}
+
+nightwind_build_command() {
+  #!/bin/bash
+
+  set -e
+
+  target="${args[target]}"
+
+  if [ ! -d ".nightwind/rendered/dockerfiles" ];
+  then
+      echo "$(red .nightwind/rendered/dockerfiles doesnt exist, nothing to build.)"
+      exit 1
+  fi
+
+  docker_tag_namespace="$(get_docker_tag_namespace)"
+  build_project_images "$target" other_args
+
+  set +e
+}
+
+nightwind_down_command() {
+  #!/bin/bash
+  set -e
+
+  run_hook "before_down"
+
+  cyan "INFO: Checking available compose files."
+  yaml_file_arg="$(get_docker_compose_yaml_files_argument)"
+
+  cyan "INFO: Running: docker compose $yaml_file_arg down $other_args"
+  docker compose $yaml_file_arg down $other_args
+
+  # run hook if successful.
+  if [ $? -eq 0 ]; then
+      run_hook "after_down"
+  fi
+
+  lightgreen "Stopped services!"
+}
+
+nightwind_exec_command() {
+  #!/bin/bash
+  set -e
+
+  exec_command ${args[container]} ${args[command]} other_args
+
+  set +e
 }
 
 nightwind_nuke_command() {
@@ -754,26 +916,10 @@ nightwind_nuke_command() {
   fi
 
   nuke(){
-      yaml_file_arg="-f .nightwind/rendered/compose/app.yaml"
+      yaml_file_arg="$(get_docker_compose_yaml_files_argument)"
 
-      for yaml in $(find ".nightwind/rendered/compose" -type f -name '*.yaml' ! -name app.yaml);
-
-      do
-          path="${yaml##*.nightwind/}"
-
-          path=".nightwind/$path"
-          yaml_file_arg="${yaml_file_arg} -f $path"
-          target="${path%%.*}"
-      done
-
-      cyan "INFO: Running: docker kill \$(docker compose $yaml_file_arg ps -q)"
-      docker kill $(docker compose $yaml_file_arg ps -q)
-
-      cyan "INFO: Running: docker compose rm -v --force  \$(docker compose $yaml_file_arg ps -q --all)"
-      docker rm --force  $(docker compose $yaml_file_arg ps -q --all)
-
-      cyan "INFO: Running: docker system prune --all --volumes --force"
-      docker system prune --all --volumes --force
+      cyan "INFO: Running: docker-compose $yaml_file_arg down -v --rmi all"
+      docker-compose $yaml_file_arg down -v --rmi all
 
       lightgreen "Stopped and removed project docker resources."
   }
@@ -884,6 +1030,27 @@ parse_requirements() {
     action="up"
     shift
     nightwind_up_parse_requirements "$@"
+    shift $#
+    ;;
+
+  build | b )
+    action="build"
+    shift
+    nightwind_build_parse_requirements "$@"
+    shift $#
+    ;;
+
+  down | d )
+    action="down"
+    shift
+    nightwind_down_parse_requirements "$@"
+    shift $#
+    ;;
+
+  exec | e )
+    action="exec"
+    shift
+    nightwind_exec_parse_requirements "$@"
     shift $#
     ;;
 
@@ -1142,6 +1309,220 @@ nightwind_up_parse_requirements() {
   fi
 
   filter_error=$(filter_requires_docker_tag_namespace)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+}
+
+nightwind_build_parse_requirements() {
+
+  case "${1:-}" in
+  --help | -h )
+    long_usage=yes
+    nightwind_build_usage
+    exit
+    ;;
+
+  esac
+
+  if ! [[ -x "$(command -v docker)" ]]; then
+    printf "missing dependency: docker\n"
+    exit 1
+  fi
+  if ! [[ -x "$(command -v find)" ]]; then
+    printf "missing dependency: find\n"
+    exit 1
+  fi
+
+  action="build"
+
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+    -?* )
+      other_args+=("$1")
+      shift
+      ;;
+
+    * )
+
+      if [[ -z ${args[target]+x} ]]; then
+
+        args[target]=$1
+        shift
+      else
+        other_args+=("$1")
+        shift
+      fi
+      ;;
+
+    esac
+  done
+
+  filter_error=$(filter_is_laravel_directory)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_docker_running)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_requires_variables)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_requires_docker_tag_namespace)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+}
+
+nightwind_down_parse_requirements() {
+
+  case "${1:-}" in
+  --help | -h )
+    long_usage=yes
+    nightwind_down_usage
+    exit
+    ;;
+
+  esac
+
+  if ! [[ -x "$(command -v docker)" ]]; then
+    printf "missing dependency: docker\n"
+    exit 1
+  fi
+  if ! [[ -x "$(command -v find)" ]]; then
+    printf "missing dependency: find\n"
+    exit 1
+  fi
+
+  action="down"
+
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+    -?* )
+      other_args+=("$1")
+      shift
+      ;;
+
+    * )
+
+      other_args+=("$1")
+      shift
+      ;;
+
+    esac
+  done
+
+  filter_error=$(filter_is_laravel_directory)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_docker_running)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_requires_variables)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_requires_rendered_files)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_requires_docker_tag_namespace)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+}
+
+nightwind_exec_parse_requirements() {
+
+  case "${1:-}" in
+  --help | -h )
+    long_usage=yes
+    nightwind_exec_usage
+    exit
+    ;;
+
+  esac
+
+  if ! [[ -x "$(command -v docker)" ]]; then
+    printf "missing dependency: docker\n"
+    exit 1
+  fi
+
+  action="exec"
+
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+    -?* )
+      other_args+=("$1")
+      shift
+      ;;
+
+    * )
+
+      if [[ -z ${args[container]+x} ]]; then
+
+        args[container]=$1
+        shift
+      elif [[ -z ${args[command]+x} ]]; then
+
+        args[command]=$1
+        shift
+      else
+        other_args+=("$1")
+        shift
+      fi
+      ;;
+
+    esac
+  done
+
+  if [[ -z ${args[container]+x} ]]; then
+    printf "missing required argument: CONTAINER\nusage: nightwind exec CONTAINER [COMMAND] [...]\n"
+    exit 1
+  fi
+
+  [[ -n ${args[command]:-} ]] || args[command]="bash"
+
+  filter_error=$(filter_is_laravel_directory)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_docker_running)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_requires_variables)
   if [[ -n $filter_error ]]; then
     echo "$filter_error"
     exit 1
@@ -1575,6 +1956,30 @@ run() {
       nightwind_up_usage
     else
       nightwind_up_command
+    fi
+
+  elif [[ $action == "build" ]]; then
+    if [[ ${args[--help]:-} ]]; then
+      long_usage=yes
+      nightwind_build_usage
+    else
+      nightwind_build_command
+    fi
+
+  elif [[ $action == "down" ]]; then
+    if [[ ${args[--help]:-} ]]; then
+      long_usage=yes
+      nightwind_down_usage
+    else
+      nightwind_down_command
+    fi
+
+  elif [[ $action == "exec" ]]; then
+    if [[ ${args[--help]:-} ]]; then
+      long_usage=yes
+      nightwind_exec_usage
+    else
+      nightwind_exec_command
     fi
 
   elif [[ $action == "nuke" ]]; then

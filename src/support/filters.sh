@@ -50,6 +50,6 @@ filter_requires_variables(){
 filter_requires_rendered_files(){
     if [ ! -d ".nightwind/rendered" ] || [ -z "$(ls -A ".nightwind/rendered")" ]
     then
-        echo "$(red The template files have not been rendered/nothing to render. Did you run \`nightwind render\`)"
+        echo "$(red The template files have not been rendered. Did you run \`nightwind render\`)"
     fi
 }

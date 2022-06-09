@@ -32,7 +32,6 @@ cp -R $PWD/.nightwind $(get_cli_path)/src/renderer/.project
 cp $PWD/.env $(get_cli_path)/src/renderer/.project/.env
 
 ## Mounted volume directories get mounted as root, a work around as commented here: https://github.com/moby/moby/issues/2259#issuecomment-26564115
-rm -rf $PWD/.nightwind/rendered
 mkdir -p $PWD/.nightwind/rendered
 chown $(id -u):$(id -g) $PWD/.nightwind/rendered
 

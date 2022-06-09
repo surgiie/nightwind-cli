@@ -41,22 +41,13 @@ done
 
 cyan "INFO: Checking available compose files."
 
-yaml_file_arg="-f .nightwind/rendered/compose/app.yaml"
-
-for yaml in $(find ".nightwind/rendered/compose" -type f -name '*.yaml' ! -name app.yaml); 
-do
-    path="${yaml##*.nightwind/}" 
-    path=".nightwind/$path"
-    yaml_file_arg="${yaml_file_arg} -f $path"
-    target="${path%%.*}"
-done
+yaml_file_arg="$(get_docker_compose_yaml_files_argument)"
 
 cyan "INFO: Running: docker compose $yaml_file_arg up -d $other_args"
 docker compose $yaml_file_arg up -d $other_args
 
-# run hook if successful.
-if [ $? -eq 0 ]; then
-    run_hook "after_up"
-fi
+run_hook "after_up"
 
 lightgreen "Started services!"
+
+set +e

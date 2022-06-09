@@ -27,24 +27,10 @@ fi
 
 
 nuke(){
-    yaml_file_arg="-f .nightwind/rendered/compose/app.yaml"
-    
-    for yaml in $(find ".nightwind/rendered/compose" -type f -name '*.yaml' ! -name app.yaml); 
-    do
-        path="${yaml##*.nightwind/}" 
-        path=".nightwind/$path"
-        yaml_file_arg="${yaml_file_arg} -f $path"
-        target="${path%%.*}"
-    done
+    yaml_file_arg="$(get_docker_compose_yaml_files_argument)"
 
-    cyan "INFO: Running: docker kill \$(docker compose $yaml_file_arg ps -q)"
-    docker kill $(docker compose $yaml_file_arg ps -q)
-    
-    cyan "INFO: Running: docker compose rm -v --force  \$(docker compose $yaml_file_arg ps -q --all)"
-    docker rm --force  $(docker compose $yaml_file_arg ps -q --all)
-
-    cyan "INFO: Running: docker system prune --all --volumes --force"
-    docker system prune --all --volumes --force
+    cyan "INFO: Running: docker-compose $yaml_file_arg down -v --rmi all"
+    docker-compose $yaml_file_arg down -v --rmi all
 
     lightgreen "Stopped and removed project docker resources."
 }

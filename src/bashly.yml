@@ -5,6 +5,9 @@ commands:
  - import: src/commands/init.sh
  - import: src/commands/render.sh
  - import: src/commands/up.sh
+ - import: src/commands/build.sh
+ - import: src/commands/down.sh
+ - import: src/commands/exec.sh
  - import: src/commands/nuke.sh
  - import: src/commands/composer.sh
  - import: src/commands/npm.sh

@@ -43,6 +43,24 @@ write_file(){
         echo "$contents" > $file
     fi
 }
+
+#---
+## Get all the yaml files available in the project to proxy to a docker compose command i.e -f .nightwind/rendered/compose/app.yaml
+#---
+get_docker_compose_yaml_files_argument(){
+    
+    yaml_file_arg="-f .nightwind/rendered/compose/app.yaml"
+
+    for yaml in $(find ".nightwind/rendered/compose" -type f -name '*.yaml' ! -name app.yaml); 
+    do
+        path="${yaml##*.nightwind/}" 
+        path=".nightwind/$path"
+        yaml_file_arg="${yaml_file_arg} -f $path"
+        target="${path%%.*}"
+    done
+    
+    echo "$yaml_file_arg"
+}
 #---
 ## Prompt for confirmation, to be used in if statements.
 #---

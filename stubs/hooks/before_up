@@ -21,7 +21,7 @@ fi
 # local ssl cert to allow container startup if a cert doesnt already exist for the out of box nginx https configuration, remove as needed.
 if [ ! -f "$cert_path/privkey.pem" ] && [ ! -f "$cert_path/fullchain.pem" ]; 
 then
-    subject="/CN=$domain/C=US/ST=Indiana/L=Indianapolis/O=Self/OU=Development"
+    subject="/CN=$domain/C=US/ST=Example/L=Example/O=Self/OU=Development"
     openssl genrsa -out $cert_path/privkey.pem 2048
     openssl req -new -x509 -key $cert_path/privkey.pem -out $cert_path/fullchain.pem \
         -days 3650 -subj "$subject" -extensions SAN -config <( \
