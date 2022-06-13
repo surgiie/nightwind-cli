@@ -1,7 +1,7 @@
 {
     "require": {
         "vlucas/phpdotenv": "^5.4",
-        "surgiie/blade-cli": "^0.0.3"
+        "surgiie/blade-cli": "^0.1.0"
     },
     "require-dev": {
         "symfony/var-dumper": "^6.0"
