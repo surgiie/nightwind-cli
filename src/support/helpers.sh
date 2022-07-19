@@ -109,8 +109,8 @@ exec_command(){
 
     container="$docker_tag_namespace-${container/$docker_tag_namespace-/''}"
 
-    cyan "INFO: Running: docker exec -it "$container" "$command" $other_args"
-    docker exec -it "$container" $command $other_args
+    cyan "INFO: Running: docker exec -it "$container" "$command" $other_arguments"
+    docker exec -it "$container" $command ${other_arguments[@]}
 }
 
 #---
