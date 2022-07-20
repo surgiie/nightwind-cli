@@ -137,7 +137,7 @@ build_project_images(){
         filename="${dockerfile##*dockerfiles/}" ## get relative path
         target="${filename%%.*}"
         
-        cyan "INFO: Running: docker build -t $docker_tag_namespace/$target -f .nightwind/rendered/dockerfiles/$filename . $build_args"
-        docker build -t $docker_tag_namespace/$target -f ".nightwind/rendered/dockerfiles/$filename" . $build_args 
+        cyan "INFO: Running: docker build -t $docker_tag_namespace/$target -f .nightwind/rendered/dockerfiles/$filename . ${build_args[@]}"
+        docker build -t $docker_tag_namespace/$target -f ".nightwind/rendered/dockerfiles/$filename" . ${build_args[@]}
     done
 }
