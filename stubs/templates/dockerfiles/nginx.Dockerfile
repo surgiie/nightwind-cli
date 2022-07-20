@@ -3,8 +3,6 @@ FROM nginx:1.20.0
 RUN mkdir -p /var/www/html
 RUN mkdir -p {{ $dockerSslDirectory }}
 
-RUN mkdir -p /usr/local/bin/nightwind/entrypoints
-
 RUN groupadd -g {{ $dockerUserUid }} {{ $dockerUsername }} && useradd -u {{ $dockerUserUid }} -ms /bin/bash -g {{ $dockerUsername }} {{ $dockerUsername }}
 
 RUN chown -R {{ $dockerUsername }}:{{ $dockerUsername }} /var/www/html && chmod -R 755 /var/www/html && \
@@ -16,11 +14,8 @@ RUN chown -R {{ $dockerUsername }}:{{ $dockerUsername }} /var/www/html && chmod 
 RUN touch /var/run/nginx.pid && \
         chown -R {{ $dockerUsername }}:{{ $dockerUsername }} /var/run/nginx.pid
 
-COPY ./.nightwind/rendered/entrypoints/nginx /usr/local/bin/nightwind/entrypoints/nginx
-RUN chmod ug+x /usr/local/bin/nightwind/entrypoints/nginx && chown {{ $dockerUsername }}:{{ $dockerUsername }} /usr/local/bin/nightwind/entrypoints/nginx
-
 USER {{ $dockerUsername }}
 
 WORKDIR /var/www/html
 
-CMD bash /usr/local/bin/nightwind/entrypoints/nginx && nginx -g 'daemon off;'
+CMD  nginx -g 'daemon off;'

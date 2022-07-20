@@ -42,6 +42,7 @@ services:
   redis:
     container_name: {{ $dockerTagNamespace }}-redis
     image: redis:6
+    user: redis
     restart: unless-stopped
     env_file: ../../../.env
     tty: true
@@ -58,6 +59,7 @@ services:
       retries: 10
   mysql:
     image: mysql:8.0.27
+    user: mysql
     container_name: {{ $dockerTagNamespace }}-mysql
     restart: unless-stopped
     tty: true

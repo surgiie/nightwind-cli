@@ -36,15 +36,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 RUN groupadd -g {{ $dockerUserUid }} {{ $dockerUsername }} && useradd -u {{ $dockerUserUid }} -ms /bin/bash -g {{ $dockerUsername }} {{ $dockerUsername }}
 
-RUN mkdir -p /usr/local/bin/nightwind/entrypoints
-
-COPY ./.nightwind/rendered/entrypoints/app /usr/local/bin/nightwind/entrypoints/app
-
-RUN chmod ug+x /usr/local/bin/nightwind/entrypoints/app && chown {{ $dockerUsername }}:{{ $dockerUsername }} /usr/local/bin/nightwind/entrypoints/app
 COPY --chown={{ $dockerUsername }}:{{ $dockerUsername }} ./ /var/www/html
 
 USER {{ $dockerUsername }}
 
 WORKDIR /var/www/html
 
-CMD bash /usr/local/bin/nightwind/entrypoints/app
+CMD php-fpm
