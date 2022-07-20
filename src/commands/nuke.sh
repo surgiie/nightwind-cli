@@ -1,7 +1,7 @@
 
 name: nuke
 alias: n
-help: Nuke all project docker compose services & volumes and optionally run docker system prune.
+help: Nuke all project docker compose services. 
 catch_all: true
 filename: commands/nuke.sh
 filters:

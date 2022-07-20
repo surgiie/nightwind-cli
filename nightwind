@@ -68,7 +68,7 @@ nightwind_usage() {
   echo "  build      Build docker image(s) in .nightwind/dockerfiles."
   echo "  down       Stop docker compose services."
   echo "  exec       Exec a command on a container."
-  echo "  nuke       Nuke all project docker compose services & volumes and optionally run docker system prune."
+  echo "  nuke       Nuke all project docker compose services."
   echo "  composer   Proxy a composer command to the app service container."
   echo "  npm        Proxy a npm command to the app service container."
   echo "  artisan    Proxy a artisan command to the app service container."
@@ -297,11 +297,11 @@ nightwind_exec_usage() {
 
 nightwind_nuke_usage() {
   if [[ -n $long_usage ]]; then
-    printf "nightwind nuke - Nuke all project docker compose services & volumes and optionally run docker system prune.\n"
+    printf "nightwind nuke - Nuke all project docker compose services.\n"
     echo
 
   else
-    printf "nightwind nuke - Nuke all project docker compose services & volumes and optionally run docker system prune.\n"
+    printf "nightwind nuke - Nuke all project docker compose services.\n"
     echo
 
   fi
