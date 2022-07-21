@@ -1,6 +1,6 @@
 # Nightwind CLI
 
-A command-line interface for interacting, managing and running your Laravel docker compose projects with blade rendered templates.
+A bash CLI for running Laravel docker projects with blade rendered templates.
 
 ## Dependencies
 
