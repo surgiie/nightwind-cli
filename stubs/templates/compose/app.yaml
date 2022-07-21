@@ -8,6 +8,10 @@ services:
     env_file: ../../../.env
     environment:
       COMPOSER_MEMORY_LIMIT: -1
+    @if($appEnv == 'local')
+    ports:
+      - "${VITE_PORT:-3000}:3000"
+    @endif
     volumes:
       - ../../../:/var/www/html
       - ../nginx/ssl:{{ $dockerSslDirectory }}
