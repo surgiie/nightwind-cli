@@ -1,9 +1,9 @@
 #!/bin/bash
 name: composer
-alias: c
 help: Proxy a composer command to the app service container.
 catch_all: true
 filename: commands/composer.sh
+group: Docker
 filters:
 - is_laravel_directory
 - docker_running

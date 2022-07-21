@@ -1,8 +1,8 @@
 name: npm
-alias: np
 help: Proxy a npm command to the app service container.
 catch_all: true
 filename: commands/npm.sh
+group: Docker
 filters:
 - is_laravel_directory
 - docker_running

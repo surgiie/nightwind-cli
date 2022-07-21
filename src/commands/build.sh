@@ -1,8 +1,8 @@
 name: build
-alias: b
 help: Build docker image(s) in .nightwind/dockerfiles.
 catch_all: true
 filename: commands/build.sh
+group: Docker
 filters:
   - is_laravel_directory
   - docker_running

@@ -46,11 +46,11 @@ version_command() {
 
 nightwind_usage() {
   if [[ -n $long_usage ]]; then
-    printf "nightwind - A command-line interface for interacting and managing Laravel docker projects with blade rendered templates.\n"
+    printf "nightwind - A bash CLI for running Laravel docker projects with blade rendered templates.\n"
     echo
 
   else
-    printf "nightwind - A command-line interface for interacting and managing Laravel docker projects with blade rendered templates.\n"
+    printf "nightwind - A bash CLI for running Laravel docker projects with blade rendered templates.\n"
     echo
 
   fi
@@ -61,9 +61,11 @@ nightwind_usage() {
   printf "  nightwind --version | -v\n"
   echo
 
-  printf "Commands:\n"
+  printf "Template Commands:\n"
   echo "  init       Initialize project .nightwind directory & template files."
   echo "  render     Render the project .nightwind template files."
+  echo
+  printf "Docker Commands:\n"
   echo "  up         Start docker compose services."
   echo "  build      Build docker image(s) in .nightwind/dockerfiles."
   echo "  down       Stop docker compose services."
@@ -71,8 +73,12 @@ nightwind_usage() {
   echo "  nuke       Nuke all project docker compose services."
   echo "  composer   Proxy a composer command to the app service container."
   echo "  npm        Proxy a npm command to the app service container."
-  echo "  artisan    Proxy a artisan command to the app service container."
-  echo "  logs       Tail/follow a project container logs."
+  echo "  app        Exec a command on the app container."
+  echo "  nginx      Exec a command on the nginx container."
+  echo "  mysql      Exec a command on the mysql container."
+  echo "  redis      Exec a command on the redis container."
+  echo "  artisan    Proxy an artisan command to the app service container."
+  echo "  logs       Tail a project container logs."
   echo
 
   if [[ -n $long_usage ]]; then
@@ -98,9 +104,6 @@ nightwind_init_usage() {
     echo
 
   fi
-
-  printf "Alias: i\n"
-  echo
 
   printf "Usage:\n"
   printf "  nightwind init [options]\n"
@@ -131,9 +134,6 @@ nightwind_render_usage() {
     echo
 
   fi
-
-  printf "Alias: r\n"
-  echo
 
   printf "Usage:\n"
   printf "  nightwind render [options] [...]\n"
@@ -169,9 +169,6 @@ nightwind_up_usage() {
 
   fi
 
-  printf "Alias: u\n"
-  echo
-
   printf "Usage:\n"
   printf "  nightwind up [options] [...]\n"
   printf "  nightwind up --help | -h\n"
@@ -201,9 +198,6 @@ nightwind_build_usage() {
     echo
 
   fi
-
-  printf "Alias: b\n"
-  echo
 
   printf "Usage:\n"
   printf "  nightwind build [TARGET] [...]\n"
@@ -237,9 +231,6 @@ nightwind_down_usage() {
 
   fi
 
-  printf "Alias: d\n"
-  echo
-
   printf "Usage:\n"
   printf "  nightwind down [...]\n"
   printf "  nightwind down --help | -h\n"
@@ -265,9 +256,6 @@ nightwind_exec_usage() {
     echo
 
   fi
-
-  printf "Alias: e\n"
-  echo
 
   printf "Usage:\n"
   printf "  nightwind exec CONTAINER [COMMAND] [...]\n"
@@ -306,9 +294,6 @@ nightwind_nuke_usage() {
 
   fi
 
-  printf "Alias: n\n"
-  echo
-
   printf "Usage:\n"
   printf "  nightwind nuke [options] [...]\n"
   printf "  nightwind nuke --help | -h\n"
@@ -338,9 +323,6 @@ nightwind_composer_usage() {
     echo
 
   fi
-
-  printf "Alias: c\n"
-  echo
 
   printf "Usage:\n"
   printf "  nightwind composer [COMMAND] [options] [...]\n"
@@ -379,9 +361,6 @@ nightwind_npm_usage() {
 
   fi
 
-  printf "Alias: np\n"
-  echo
-
   printf "Usage:\n"
   printf "  nightwind npm [COMMAND] [options] [...]\n"
   printf "  nightwind npm --help | -h\n"
@@ -408,19 +387,148 @@ nightwind_npm_usage() {
   fi
 }
 
-nightwind_artisan_usage() {
+nightwind_app_usage() {
   if [[ -n $long_usage ]]; then
-    printf "nightwind artisan - Proxy a artisan command to the app service container.\n"
+    printf "nightwind app - Exec a command on the app container.\n"
     echo
 
   else
-    printf "nightwind artisan - Proxy a artisan command to the app service container.\n"
+    printf "nightwind app - Exec a command on the app container.\n"
     echo
 
   fi
 
-  printf "Alias: a\n"
+  printf "Usage:\n"
+  printf "  nightwind app [COMMAND] [...]\n"
+  printf "  nightwind app --help | -h\n"
   echo
+
+  if [[ -n $long_usage ]]; then
+    printf "Options:\n"
+
+    echo "  --help, -h"
+    printf "    Show this help\n"
+    echo
+
+    printf "Arguments:\n"
+
+    echo "  COMMAND"
+    printf "    The command to exec.\n"
+    printf "    Default: bash\n"
+    echo
+
+  fi
+}
+
+nightwind_nginx_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "nightwind nginx - Exec a command on the nginx container.\n"
+    echo
+
+  else
+    printf "nightwind nginx - Exec a command on the nginx container.\n"
+    echo
+
+  fi
+
+  printf "Usage:\n"
+  printf "  nightwind nginx [COMMAND] [...]\n"
+  printf "  nightwind nginx --help | -h\n"
+  echo
+
+  if [[ -n $long_usage ]]; then
+    printf "Options:\n"
+
+    echo "  --help, -h"
+    printf "    Show this help\n"
+    echo
+
+    printf "Arguments:\n"
+
+    echo "  COMMAND"
+    printf "    The command to exec.\n"
+    printf "    Default: bash\n"
+    echo
+
+  fi
+}
+
+nightwind_mysql_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "nightwind mysql - Exec a command on the mysql container.\n"
+    echo
+
+  else
+    printf "nightwind mysql - Exec a command on the mysql container.\n"
+    echo
+
+  fi
+
+  printf "Usage:\n"
+  printf "  nightwind mysql [COMMAND] [...]\n"
+  printf "  nightwind mysql --help | -h\n"
+  echo
+
+  if [[ -n $long_usage ]]; then
+    printf "Options:\n"
+
+    echo "  --help, -h"
+    printf "    Show this help\n"
+    echo
+
+    printf "Arguments:\n"
+
+    echo "  COMMAND"
+    printf "    The command to exec.\n"
+    printf "    Default: bash\n"
+    echo
+
+  fi
+}
+
+nightwind_redis_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "nightwind redis - Exec a command on the redis container.\n"
+    echo
+
+  else
+    printf "nightwind redis - Exec a command on the redis container.\n"
+    echo
+
+  fi
+
+  printf "Usage:\n"
+  printf "  nightwind redis [COMMAND] [...]\n"
+  printf "  nightwind redis --help | -h\n"
+  echo
+
+  if [[ -n $long_usage ]]; then
+    printf "Options:\n"
+
+    echo "  --help, -h"
+    printf "    Show this help\n"
+    echo
+
+    printf "Arguments:\n"
+
+    echo "  COMMAND"
+    printf "    The command to exec.\n"
+    printf "    Default: bash\n"
+    echo
+
+  fi
+}
+
+nightwind_artisan_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "nightwind artisan - Proxy an artisan command to the app service container.\n"
+    echo
+
+  else
+    printf "nightwind artisan - Proxy an artisan command to the app service container.\n"
+    echo
+
+  fi
 
   printf "Usage:\n"
   printf "  nightwind artisan [COMMAND] [options] [...]\n"
@@ -450,20 +558,17 @@ nightwind_artisan_usage() {
 
 nightwind_logs_usage() {
   if [[ -n $long_usage ]]; then
-    printf "nightwind logs - Tail/follow a project container logs.\n"
+    printf "nightwind logs - Tail a project container logs.\n"
     echo
 
   else
-    printf "nightwind logs - Tail/follow a project container logs.\n"
+    printf "nightwind logs - Tail a project container logs.\n"
     echo
 
   fi
 
-  printf "Alias: l\n"
-  echo
-
   printf "Usage:\n"
-  printf "  nightwind logs CONTAINER [...]\n"
+  printf "  nightwind logs [CONTAINER] [...]\n"
   printf "  nightwind logs --help | -h\n"
   echo
 
@@ -478,6 +583,7 @@ nightwind_logs_usage() {
 
     echo "  CONTAINER"
     printf "    The target container to tail logs.\n"
+    printf "    Default: app\n"
     echo
 
   fi
@@ -965,6 +1071,42 @@ nightwind_npm_command() {
   set +e
 }
 
+nightwind_app_command() {
+  #!/bin/bash
+  set -e
+
+  exec_command app ${args[command]} other_args
+
+  set +e
+}
+
+nightwind_nginx_command() {
+  #!/bin/bash
+  set -e
+
+  exec_command nginx ${args[command]} other_args
+
+  set +e
+}
+
+nightwind_mysql_command() {
+  #!/bin/bash
+  set -e
+
+  exec_command mysql ${args[command]} other_args
+
+  set +e
+}
+
+nightwind_redis_command() {
+  #!/bin/bash
+  set -e
+
+  exec_command redis ${args[command]} other_args
+
+  set +e
+}
+
 nightwind_artisan_command() {
   #!/bin/bash
 
@@ -1011,77 +1153,105 @@ parse_requirements() {
   -* )
     ;;
 
-  init | i )
+  init )
     action="init"
     shift
     nightwind_init_parse_requirements "$@"
     shift $#
     ;;
 
-  render | r )
+  render )
     action="render"
     shift
     nightwind_render_parse_requirements "$@"
     shift $#
     ;;
 
-  up | u )
+  up )
     action="up"
     shift
     nightwind_up_parse_requirements "$@"
     shift $#
     ;;
 
-  build | b )
+  build )
     action="build"
     shift
     nightwind_build_parse_requirements "$@"
     shift $#
     ;;
 
-  down | d )
+  down )
     action="down"
     shift
     nightwind_down_parse_requirements "$@"
     shift $#
     ;;
 
-  exec | e )
+  exec )
     action="exec"
     shift
     nightwind_exec_parse_requirements "$@"
     shift $#
     ;;
 
-  nuke | n )
+  nuke )
     action="nuke"
     shift
     nightwind_nuke_parse_requirements "$@"
     shift $#
     ;;
 
-  composer | c )
+  composer )
     action="composer"
     shift
     nightwind_composer_parse_requirements "$@"
     shift $#
     ;;
 
-  npm | np )
+  npm )
     action="npm"
     shift
     nightwind_npm_parse_requirements "$@"
     shift $#
     ;;
 
-  artisan | a )
+  app )
+    action="app"
+    shift
+    nightwind_app_parse_requirements "$@"
+    shift $#
+    ;;
+
+  nginx )
+    action="nginx"
+    shift
+    nightwind_nginx_parse_requirements "$@"
+    shift $#
+    ;;
+
+  mysql )
+    action="mysql"
+    shift
+    nightwind_mysql_parse_requirements "$@"
+    shift $#
+    ;;
+
+  redis )
+    action="redis"
+    shift
+    nightwind_redis_parse_requirements "$@"
+    shift $#
+    ;;
+
+  artisan )
     action="artisan"
     shift
     nightwind_artisan_parse_requirements "$@"
     shift $#
     ;;
 
-  logs | l )
+  logs )
     action="logs"
     shift
     nightwind_logs_parse_requirements "$@"
@@ -1763,6 +1933,258 @@ nightwind_npm_parse_requirements() {
   fi
 }
 
+nightwind_app_parse_requirements() {
+
+  case "${1:-}" in
+  --help | -h )
+    long_usage=yes
+    nightwind_app_usage
+    exit
+    ;;
+
+  esac
+
+  if ! [[ -x "$(command -v docker)" ]]; then
+    printf "missing dependency: docker\n"
+    exit 1
+  fi
+
+  action="app"
+
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+    -?* )
+      other_args+=("$1")
+      shift
+      ;;
+
+    * )
+
+      if [[ -z ${args[command]+x} ]]; then
+
+        args[command]=$1
+        shift
+      else
+        other_args+=("$1")
+        shift
+      fi
+      ;;
+
+    esac
+  done
+
+  [[ -n ${args[command]:-} ]] || args[command]="bash"
+
+  filter_error=$(filter_is_laravel_directory)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_docker_running)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_requires_variables)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+}
+
+nightwind_nginx_parse_requirements() {
+
+  case "${1:-}" in
+  --help | -h )
+    long_usage=yes
+    nightwind_nginx_usage
+    exit
+    ;;
+
+  esac
+
+  if ! [[ -x "$(command -v docker)" ]]; then
+    printf "missing dependency: docker\n"
+    exit 1
+  fi
+
+  action="nginx"
+
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+    -?* )
+      other_args+=("$1")
+      shift
+      ;;
+
+    * )
+
+      if [[ -z ${args[command]+x} ]]; then
+
+        args[command]=$1
+        shift
+      else
+        other_args+=("$1")
+        shift
+      fi
+      ;;
+
+    esac
+  done
+
+  [[ -n ${args[command]:-} ]] || args[command]="bash"
+
+  filter_error=$(filter_is_laravel_directory)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_docker_running)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_requires_variables)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+}
+
+nightwind_mysql_parse_requirements() {
+
+  case "${1:-}" in
+  --help | -h )
+    long_usage=yes
+    nightwind_mysql_usage
+    exit
+    ;;
+
+  esac
+
+  if ! [[ -x "$(command -v docker)" ]]; then
+    printf "missing dependency: docker\n"
+    exit 1
+  fi
+
+  action="mysql"
+
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+    -?* )
+      other_args+=("$1")
+      shift
+      ;;
+
+    * )
+
+      if [[ -z ${args[command]+x} ]]; then
+
+        args[command]=$1
+        shift
+      else
+        other_args+=("$1")
+        shift
+      fi
+      ;;
+
+    esac
+  done
+
+  [[ -n ${args[command]:-} ]] || args[command]="bash"
+
+  filter_error=$(filter_is_laravel_directory)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_docker_running)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_requires_variables)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+}
+
+nightwind_redis_parse_requirements() {
+
+  case "${1:-}" in
+  --help | -h )
+    long_usage=yes
+    nightwind_redis_usage
+    exit
+    ;;
+
+  esac
+
+  if ! [[ -x "$(command -v docker)" ]]; then
+    printf "missing dependency: docker\n"
+    exit 1
+  fi
+
+  action="redis"
+
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+    -?* )
+      other_args+=("$1")
+      shift
+      ;;
+
+    * )
+
+      if [[ -z ${args[command]+x} ]]; then
+
+        args[command]=$1
+        shift
+      else
+        other_args+=("$1")
+        shift
+      fi
+      ;;
+
+    esac
+  done
+
+  [[ -n ${args[command]:-} ]] || args[command]="bash"
+
+  filter_error=$(filter_is_laravel_directory)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_docker_running)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+
+  filter_error=$(filter_requires_variables)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error"
+    exit 1
+  fi
+}
+
 nightwind_artisan_parse_requirements() {
 
   case "${1:-}" in
@@ -1887,10 +2309,7 @@ nightwind_logs_parse_requirements() {
     esac
   done
 
-  if [[ -z ${args[container]+x} ]]; then
-    printf "missing required argument: CONTAINER\nusage: nightwind logs CONTAINER [...]\n"
-    exit 1
-  fi
+  [[ -n ${args[container]:-} ]] || args[container]="app"
 
   filter_error=$(filter_is_laravel_directory)
   if [[ -n $filter_error ]]; then
@@ -1912,7 +2331,7 @@ nightwind_logs_parse_requirements() {
 }
 
 initialize() {
-  version="v1.0.0"
+  version="v1.0.4"
   long_usage=''
   set -e
 
@@ -2003,6 +2422,38 @@ run() {
       nightwind_npm_usage
     else
       nightwind_npm_command
+    fi
+
+  elif [[ $action == "app" ]]; then
+    if [[ ${args[--help]:-} ]]; then
+      long_usage=yes
+      nightwind_app_usage
+    else
+      nightwind_app_command
+    fi
+
+  elif [[ $action == "nginx" ]]; then
+    if [[ ${args[--help]:-} ]]; then
+      long_usage=yes
+      nightwind_nginx_usage
+    else
+      nightwind_nginx_command
+    fi
+
+  elif [[ $action == "mysql" ]]; then
+    if [[ ${args[--help]:-} ]]; then
+      long_usage=yes
+      nightwind_mysql_usage
+    else
+      nightwind_mysql_command
+    fi
+
+  elif [[ $action == "redis" ]]; then
+    if [[ ${args[--help]:-} ]]; then
+      long_usage=yes
+      nightwind_redis_usage
+    else
+      nightwind_redis_command
     fi
 
   elif [[ $action == "artisan" ]]; then

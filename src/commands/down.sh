@@ -1,8 +1,8 @@
 name: down
-alias: d
 help: Stop docker compose services.
 catch_all: true
 filename: commands/down.sh
+group: Docker
 filters:
   - is_laravel_directory
   - docker_running

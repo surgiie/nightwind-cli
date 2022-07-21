@@ -1,8 +1,8 @@
 name: artisan
-alias: a
-help: Proxy a artisan command to the app service container.
+help: Proxy an artisan command to the app service container.
 catch_all: true
 filename: commands/artisan.sh
+group: Docker
 filters:
 - is_laravel_directory
 - docker_running

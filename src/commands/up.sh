@@ -1,7 +1,7 @@
 name: up
-alias: u
 help: Start docker compose services.
 catch_all: true
+group: Docker
 filename: commands/up.sh
 filters:
   - is_laravel_directory

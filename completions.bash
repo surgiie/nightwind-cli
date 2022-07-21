@@ -25,11 +25,19 @@ _nightwind_completions() {
       COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
       ;;
 
-    'init'*)
-      COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
+    'mysql'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
       ;;
 
-    'logs'*)
+    'nginx'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
+    'redis'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
+    'exec'*)
       COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
       ;;
 
@@ -41,7 +49,15 @@ _nightwind_completions() {
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
       ;;
 
-    'exec'*)
+    'init'*)
+      COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
+      ;;
+
+    'logs'*)
+      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
+      ;;
+
+    'app'*)
       COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
       ;;
 
@@ -53,52 +69,8 @@ _nightwind_completions() {
       COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
       ;;
 
-    'np'*)
-      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
-      ;;
-
-    'e'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
-      ;;
-
-    'd'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
-      ;;
-
-    'u'*)
-      COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
-      ;;
-
-    'i'*)
-      COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
-      ;;
-
-    'r'*)
-      COMPREPLY=($(compgen -W "--help --rebuild --remove -h" -- "$cur"))
-      ;;
-
-    'b'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
-      ;;
-
-    'n'*)
-      COMPREPLY=($(compgen -W "--force --help -h" -- "$cur"))
-      ;;
-
-    'c'*)
-      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
-      ;;
-
-    'l'*)
-      COMPREPLY=($(compgen -W "--help -h" -- "$cur"))
-      ;;
-
-    'a'*)
-      COMPREPLY=($(compgen -W "--container --help -h" -- "$cur"))
-      ;;
-
     *)
-      COMPREPLY=($(compgen -W "--help --version -h -v a artisan b build c composer d down e exec i init l logs n np npm nuke r render u up" -- "$cur"))
+      COMPREPLY=($(compgen -W "--help --version -h -v app artisan build composer down exec init logs mysql nginx npm nuke redis render up" -- "$cur"))
       ;;
 
   esac

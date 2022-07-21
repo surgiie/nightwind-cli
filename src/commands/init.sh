@@ -1,7 +1,7 @@
 name: init
-alias: i
 help: Initialize project .nightwind directory & template files.
 filename: commands/init.sh
+group: Template
 filters:
   - is_laravel_directory
 flags:

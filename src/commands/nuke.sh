@@ -1,9 +1,9 @@
 
 name: nuke
-alias: n
 help: Nuke all project docker compose services. 
 catch_all: true
 filename: commands/nuke.sh
+group: Docker
 filters:
   - is_laravel_directory
   - docker_running

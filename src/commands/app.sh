@@ -1,12 +1,9 @@
-name: exec
-filename: commands/exec.sh
-help: Exec a command on a container.
+name: app
+filename: commands/app.sh
+help: Exec a command on the app container.
 catch_all: true
 group: Docker
 args:
-- name: container
-  help: The target container to exec command.
-  required: true
 - name: command
   help: The command to exec.
   default: bash
@@ -20,6 +17,6 @@ filters:
 #!/bin/bash
 set -e
 
-exec_command ${args[container]} ${args[command]} other_args
+exec_command app ${args[command]} other_args
 
 set +e

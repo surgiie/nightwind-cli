@@ -1,8 +1,8 @@
 name: render
-alias: r
 help: Render the project .nightwind template files.
 filename: commands/render.sh
 catch_all: true
+group: Template
 filters:
   - is_laravel_directory
   - is_initialized
