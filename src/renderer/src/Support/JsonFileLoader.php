@@ -2,7 +2,7 @@
 
 namespace Nightwind\Support;
 
-use BladeCLI\Support\Concerns\LoadsJsonFiles;
+use Surgiie\BladeCLI\Support\Concerns\LoadsJsonFiles;
 
 class JsonFileLoader
 {

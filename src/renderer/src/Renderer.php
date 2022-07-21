@@ -4,10 +4,10 @@ namespace Nightwind;
 
 use SplFileInfo;
 use Dotenv\Dotenv;
-use BladeCLI\Blade;
+use Surgiie\BladeCLI\Blade;
 use Illuminate\Support\Str;
 use Nightwind\Support\JsonFileLoader;
-use BladeCLI\Support\OptionsParser;
+use Surgiie\BladeCLI\Support\OptionsParser;
 use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 
