@@ -2331,7 +2331,7 @@ nightwind_logs_parse_requirements() {
 }
 
 initialize() {
-  version="v1.0.4"
+  version="v1.0.5"
   long_usage=''
   set -e
 
