@@ -84,6 +84,31 @@ services:
       interval: 10s
       timeout: 2s
       retries: 10
+  @if($appEnv=='local')
+  test_db:
+    image: mysql:8.0.27
+    container_name: {{ $dockerTagNamespace }}-test-mysql
+    user: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "{{ $testDbHostPort }}:3306"
+    volumes:
+      - {{ $dockerTagNamespace }}-test-mysql:/var/lib/mysql/
+    networks:
+      - {{ $dockerTagNamespace }}-network
+    env_file: ../../../.env
+    environment:
+      MYSQL_DATABASE: ${TEST_DB_DATABASE}
+      MYSQL_USER: ${TEST_DB_USERNAME}
+      MYSQL_PASSWORD: ${TEST_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${TEST_DB_ROOT_PASSWORD}
+    healthcheck: 
+      test: ["CMD-SHELL",  "/usr/bin/mysql --user=${TEST_DB_USERNAME} --password=${TEST_DB_PASSWORD} --execute \"SHOW DATABASES;\""]
+      interval: 10s
+      timeout: 2s
+      retries: 10
+  @endif
   scheduler:
     image: {{ $dockerTagNamespace }}/app
     container_name: {{ $dockerTagNamespace }}-scheduler
@@ -135,5 +160,9 @@ networks:
 volumes:
   {{ $dockerTagNamespace }}-mysql:
     driver: local
+  @if($appEnv == 'local')
+  {{ $dockerTagNamespace }}-test-mysql:
+    driver: local
+  @endif
   {{ $dockerTagNamespace }}-redis:
     driver: local
